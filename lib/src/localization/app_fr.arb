@@ -1,0 +1,16 @@
+{
+  "appTitle": "Car Manager",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+
+  "carListTitle": "Annonces",
+  "@carListTitle": {
+    "description": "The title of the car saved list screen"
+  },
+
+  "sold": "VENDU",
+  "@sold": {
+    "description": "Indicate that the car is sold"
+  }
+}
