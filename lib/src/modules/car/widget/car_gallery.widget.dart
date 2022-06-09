@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 
 import '../car_gallery.view.dart';
+import '../../../widgets/image_network_loader.widget.dart';
 import '../../../widgets/gallery_indicator.widget.dart';
 
 class CarGallery extends StatefulWidget {
@@ -29,7 +30,7 @@ class _CarGalleryState extends State<CarGallery> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 250,
+      height: 275,
       child: Stack(
         children: [
           PageView(
@@ -40,7 +41,7 @@ class _CarGalleryState extends State<CarGallery> {
                 tag: imageUrl,
                 child: GestureDetector(
                   onTap: () => _onImageTap(index),
-                  child: Image.network(imageUrl, fit: BoxFit.cover),
+                  child: ImageNetworkLoader(imageUrl),
                 ),
               );
             }).toList(),

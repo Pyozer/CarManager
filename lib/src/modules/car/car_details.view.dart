@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import 'model/car.model.dart';
 import '../settings/settings.controller.dart';
 import '../../widgets/banner_toggle.widget.dart';
+import '../../widgets/return_button.widget.dart';
 import 'widget/car_detail_info.widget.dart';
 import 'widget/car_gallery.widget.dart';
 
@@ -66,18 +68,6 @@ class CarDetailsView extends StatelessWidget {
     final car = args.car;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(car.title, overflow: TextOverflow.fade),
-        actions: [
-          IconButton(
-            onPressed: () {
-              // TODO: Add delete action
-            },
-            color: Theme.of(context).colorScheme.onPrimary,
-            icon: const Icon(Icons.delete_outline),
-          ),
-        ],
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => launchUrlString(car.adUrl),
         child: const Icon(Icons.visibility),
@@ -90,7 +80,16 @@ class CarDetailsView extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.only(bottom: 124.0),
           children: [
-            CarGallery(imagesUrl: car.imagesUrl),
+            Stack(
+              children: [
+                CarGallery(imagesUrl: car.imagesUrl),
+                const ReturnButton(),
+              ],
+            ),
+            _buildContent(
+              title1: 'Titre',
+              content1: car.title,
+            ),
             _buildContent(
               title1: 'Date immatriculation',
               content1: car.displayDate,
@@ -103,8 +102,18 @@ class CarDetailsView extends StatelessWidget {
               title2: 'VIN',
               content2: car.vin,
             ),
-            _buildContent(title1: 'Prix', content1: car.displayPrice),
+            _buildContent(
+              title1: 'Puissance',
+              content1: '${car.hp} HP',
+              title2: 'Prix',
+              content2: car.displayPrice,
+            ),
             _buildContent(title1: 'Description', content1: car.description),
+            _buildContent(
+              title1: 'Ajouté le',
+              content1: DateFormat.MMMMEEEEd(Localizations.localeOf(context).languageCode)
+                  .format(car.adDate),
+            ),
           ],
         ),
       ),

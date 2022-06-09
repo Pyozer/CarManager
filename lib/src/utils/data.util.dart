@@ -1,6 +1,6 @@
 import '../modules/car/model/car.model.dart';
 
-const carsSavedData = [
+final carsSavedData = [
   Car(
     id: 1,
     title: 'Exige 192',
@@ -23,10 +23,12 @@ Voiture très peu utilisée, 33000 Km seulement
     kms: 33000,
     year: 2005,
     month: 03,
+    hp: 192,
     price: 39000,
     handDrive: HandDrive.right,
     isSold: false,
     adUrl: 'https://www.leboncoin.fr/voitures/2169712683.htm',
+    adDate: DateTime.parse('2022-05-31 10:42:00'),
     plate: '3807-YA-72',
     vin: 'SCCPA11125HN81985',
   ),
@@ -84,10 +86,12 @@ Pas d'échange même contre Lotus elise, exige, cup, s1, s2, s3, exige v6, cater
     kms: 45000,
     year: 2008,
     month: 03,
+    hp: 220,
     price: 44900,
     handDrive: HandDrive.right,
     isSold: false,
     adUrl: 'https://www.leboncoin.fr/voitures/2162588834.htm',
+    adDate: DateTime.parse('2022-05-16 12:10:00'),
     plate: 'FC-835-XY',
     vin: 'SCCVC11118HN80915',
   ),
@@ -122,10 +126,12 @@ Pour plus d'informations
     kms: 68000,
     year: 2005,
     month: 07,
+    hp: 192,
     price: 42000,
     handDrive: HandDrive.left,
     isSold: true,
     adUrl: 'https://www.leboncoin.fr/voitures/2159587412.htm',
+    adDate: DateTime.parse('2022-05-26 12:10:00'),
     plate: 'BG-037-EH',
     vin: 'SCCPA11185HN85362',
   )

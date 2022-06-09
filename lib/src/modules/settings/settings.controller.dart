@@ -34,7 +34,14 @@ class SettingsController with ChangeNotifier {
     await _settingsService.updateThemeMode(newThemeMode);
   }
 
-  Future<void> updatCarsSaved(List<Car>? newCarsSaved) async {
+  Future<void> addCar(Car newCar) async {
+    _carsSaved.add(newCar);
+  
+    notifyListeners();
+    await _settingsService.updateCarsSaved(_carsSaved);
+  }
+
+  Future<void> updateCarsSaved(List<Car>? newCarsSaved) async {
     if (newCarsSaved == null) return;
     _carsSaved = newCarsSaved;
   

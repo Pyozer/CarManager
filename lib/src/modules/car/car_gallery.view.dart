@@ -1,3 +1,4 @@
+import 'package:car_manager/src/widgets/return_button.widget.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -38,43 +39,29 @@ class _CarGalleryViewState extends State<CarGalleryView> {
             pageController: _pageController,
             scrollPhysics: const BouncingScrollPhysics(),
             enableRotation: true,
+            onPageChanged: (int page) => setState(() => _currentPage = page),
             itemCount: args.imagesUrl.length,
-            builder: (BuildContext context, int index) {
+            builder: (_, int index) {
               return PhotoViewGalleryPageOptions(
                 imageProvider: NetworkImage(args.imagesUrl[index]),
                 initialScale: PhotoViewComputedScale.contained,
-                heroAttributes:
-                    PhotoViewHeroAttributes(tag: args.imagesUrl[index]),
+                heroAttributes: PhotoViewHeroAttributes(
+                  tag: args.imagesUrl[index],
+                ),
               );
             },
-            onPageChanged: (page) {
-              setState(() => _currentPage = page);
-            },
-            loadingBuilder: (context, event) => Center(
-              child: SizedBox(
-                width: 20.0,
-                height: 20.0,
+            loadingBuilder: (_, ImageChunkEvent? progress) {
+              return Center(
                 child: CircularProgressIndicator(
-                  value: event == null || event.expectedTotalBytes == null
-                      ? 0
-                      : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
+                  value: progress?.expectedTotalBytes != null
+                      ? progress!.cumulativeBytesLoaded /
+                          progress.expectedTotalBytes!
+                      : null,
                 ),
-              ),
-            ),
+              );
+            },
           ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: SafeArea(
-              minimum: const EdgeInsets.all(16.0),
-              child: CircleAvatar(
-                backgroundColor: Colors.black45,
-                child: IconButton(
-                  onPressed: Navigator.of(context).maybePop,
-                  icon: const Icon(Icons.close, color: Colors.white),
-                ),
-              ),
-            ),
-          ),
+          const ReturnButton(isClose: true),
           Align(
             alignment: Alignment.bottomCenter,
             child: SafeArea(

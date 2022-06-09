@@ -14,10 +14,12 @@ class Car {
   final int kms;
   final int year;
   final int month;
+  final int hp;
   final int price;
   final HandDrive handDrive;
   final bool isSold;
   final String adUrl;
+  final DateTime adDate;
   final String? plate;
   final String? vin;
 
@@ -29,10 +31,12 @@ class Car {
     required this.kms,
     required this.year,
     required this.month,
+    required this.hp,
     required this.price,
     required this.handDrive,
     required this.isSold,
     required this.adUrl,
+    required this.adDate,
     this.plate,
     this.vin,
   });
@@ -62,10 +66,12 @@ class Car {
       'kms': kms,
       'year': year,
       'month': month,
+      'hp': hp,
       'price': price,
       'handDrive': handDrive.name,
       'isSold': isSold,
       'adUrl': adUrl,
+      'adDate': adDate.toIso8601String(),
       'plate': plate,
       'vin': vin,
     });
@@ -80,12 +86,14 @@ class Car {
       kms: data['kms'],
       year: data['year'],
       month: data['month'],
+      hp: data['hp'],
       price: data['price'],
       handDrive: HandDrive.values.firstWhere(
         (v) => v.name == data['handDrive'],
       ),
       isSold: data['isSold'],
       adUrl: data['adUrl'],
+      adDate: DateTime.parse(data['adDate']),
       plate: data['plate'],
       vin: data['vin'],
     );

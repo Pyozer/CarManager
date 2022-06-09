@@ -25,12 +25,14 @@ class MyApp extends StatelessWidget {
       colorScheme: ColorScheme.fromSwatch(
         accentColor: Colors.blueAccent,
       ),
+      toggleableActiveColor: Colors.blueAccent,
     );
     final darkTheme = ThemeData(
       colorScheme: ColorScheme.fromSwatch(
         brightness: Brightness.dark,
         accentColor: Colors.blueAccent,
       ),
+      toggleableActiveColor: Colors.blueAccent,
     );
 
     return AnimatedBuilder(
@@ -62,7 +64,7 @@ class MyApp extends StatelessWidget {
                   case FiltersView.routeName:
                     return const FiltersView();
                   case CarAddView.routeName:
-                    return const CarAddView();
+                    return CarAddView(controller: settingsController);
                   case CarDetailsView.routeName:
                     return CarDetailsView(controller: settingsController);
                   case CarGalleryView.routeName:

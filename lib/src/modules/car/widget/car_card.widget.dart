@@ -1,3 +1,4 @@
+import 'package:car_manager/src/widgets/image_network_loader.widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -35,10 +36,9 @@ class CarCard extends StatelessWidget {
             children: [
               Hero(
                 tag: car.imagesUrl.first,
-                child: Image.network(
+                child: ImageNetworkLoader(
                   car.imagesUrl.first,
                   height: 175,
-                  fit: BoxFit.cover,
                 ),
               ),
               Padding(
