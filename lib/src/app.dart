@@ -3,6 +3,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'modules/car/car_add.view.dart';
+import 'modules/car/car_archive_list.view.dart';
 import 'modules/car/car_details.view.dart';
 import 'modules/car/car_gallery.view.dart';
 import 'modules/car/car_list.view.dart';
@@ -12,12 +13,9 @@ import 'modules/settings/settings.view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
-  const MyApp({
-    Key? key,
-    required this.settingsController,
-  }) : super(key: key);
-
   final SettingsController settingsController;
+
+  const MyApp({Key? key, required this.settingsController}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -54,21 +52,41 @@ class MyApp extends StatelessWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: settingsController.themeMode,
-          onGenerateRoute: (RouteSettings routeSettings) {
+          onGenerateRoute: (RouteSettings settings) {
             return MaterialPageRoute<void>(
-              settings: routeSettings,
+              settings: settings,
               builder: (BuildContext context) {
-                switch (routeSettings.name) {
+                switch (settings.name) {
                   case SettingsView.routeName:
                     return SettingsView(controller: settingsController);
+
                   case FiltersView.routeName:
                     return const FiltersView();
+
                   case CarAddView.routeName:
-                    return CarAddView(controller: settingsController);
+                    final args = settings.arguments as CarAddViewArguments?;
+                    return CarAddView(
+                      controller: settingsController,
+                      baseCar: args?.baseCar,
+                    );
+
                   case CarDetailsView.routeName:
-                    return CarDetailsView(controller: settingsController);
+                    final args = settings.arguments as CarDetailsViewArguments;
+                    return CarDetailsView(
+                      controller: settingsController,
+                      carUUID: args.carUUID,
+                    );
+
                   case CarGalleryView.routeName:
-                    return const CarGalleryView();
+                    final args = settings.arguments as CarGalleryViewArguments;
+                    return CarGalleryView(
+                      imagesUrl: args.imagesUrl,
+                      defaultIndex: args.defaultIndex,
+                    );
+
+                  case CarArchiveListView.routeName:
+                    return CarArchiveListView(controller: settingsController);
+
                   case CarListView.routeName:
                   default:
                     return CarListView(controller: settingsController);

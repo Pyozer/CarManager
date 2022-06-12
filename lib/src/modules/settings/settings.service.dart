@@ -34,7 +34,7 @@ class SettingsService {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
       'cars_saved',
-      carsSaved.map((car) => car.toJSON()).toList(),
+      carsSaved.map((car) => jsonEncode(car.toJSON())).toList(),
     );
   }
 }

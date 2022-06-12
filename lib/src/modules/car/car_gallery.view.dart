@@ -13,25 +13,38 @@ class CarGalleryViewArguments {
 }
 
 class CarGalleryView extends StatefulWidget {
-  static const routeName = '/car_gallery';
+  final List<String> imagesUrl;
+  final int defaultIndex;
 
-  const CarGalleryView({Key? key}) : super(key: key);
+  const CarGalleryView(
+      {Key? key, required this.imagesUrl, this.defaultIndex = 0})
+      : super(key: key);
+
+  static const routeName = '/car_gallery';
 
   @override
   State<CarGalleryView> createState() => _CarGalleryViewState();
 }
 
 class _CarGalleryViewState extends State<CarGalleryView> {
-  PageController? _pageController;
-  int? _currentPage;
+  late final PageController _pageController;
+  late int _currentPage;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(initialPage: widget.defaultIndex);
+    _currentPage = widget.defaultIndex;
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final args =
-        ModalRoute.of(context)!.settings.arguments! as CarGalleryViewArguments;
-    _pageController ??= PageController(initialPage: args.defaultIndex);
-    _currentPage ??= args.defaultIndex;
-
     return Scaffold(
       body: Stack(
         children: [
@@ -40,13 +53,13 @@ class _CarGalleryViewState extends State<CarGalleryView> {
             scrollPhysics: const BouncingScrollPhysics(),
             enableRotation: true,
             onPageChanged: (int page) => setState(() => _currentPage = page),
-            itemCount: args.imagesUrl.length,
+            itemCount: widget.imagesUrl.length,
             builder: (_, int index) {
               return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(args.imagesUrl[index]),
+                imageProvider: NetworkImage(widget.imagesUrl[index]),
                 initialScale: PhotoViewComputedScale.contained,
                 heroAttributes: PhotoViewHeroAttributes(
-                  tag: args.imagesUrl[index],
+                  tag: widget.imagesUrl[index],
                 ),
               );
             },
@@ -66,8 +79,8 @@ class _CarGalleryViewState extends State<CarGalleryView> {
             alignment: Alignment.bottomCenter,
             child: SafeArea(
               child: GalleryIndicators(
-                currentPage: _currentPage! + 1,
-                totalPage: args.imagesUrl.length,
+                currentPage: _currentPage + 1,
+                totalPage: widget.imagesUrl.length,
               ),
             ),
           )

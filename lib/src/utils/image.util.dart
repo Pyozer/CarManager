@@ -12,22 +12,27 @@ Future<Uint8List?> networkImageData(String imageUrl) async {
   return null;
 }
 
-Future<String?> saveImageToStorage(
-  String imageUrl,
+Future<String?> saveToStorage(
+  Uint8List imageData,
   String path,
   int index,
 ) async {
-  final storageRef = FirebaseStorage.instance.ref();
-
-  final imageData = await networkImageData(imageUrl);
-  if (imageData == null) return null;
-
   final imageName = '${index}_${const Uuid().v4()}';
-  final imageRef = storageRef.child(path).child(imageName);
+  final imageRef = FirebaseStorage.instance.ref().child(path).child(imageName);
 
   try {
     await imageRef.putData(imageData);
     return await imageRef.getDownloadURL();
   } on FirebaseException catch (_) {}
   return null;
+}
+
+Future<void> deleteAllFromStorage(String path) async {
+  final storageRef = FirebaseStorage.instance.ref();
+
+  final files = await storageRef.child(path).listAll();
+
+  await Future.wait(
+    files.items.map((e) => storageRef.child(e.fullPath).delete()),
+  ).catchError((_) => _);
 }

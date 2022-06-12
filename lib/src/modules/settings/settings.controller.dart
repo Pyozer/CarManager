@@ -41,6 +41,14 @@ class SettingsController with ChangeNotifier {
     await _settingsService.updateCarsSaved(_carsSaved);
   }
 
+  Future<void> updateCar(Car updatedCar) async {
+    final index = _carsSaved.indexWhere((car) => car.uuid == updatedCar.uuid);
+    _carsSaved[index] = updatedCar;
+  
+    notifyListeners();
+    await _settingsService.updateCarsSaved(_carsSaved);
+  }
+
   Future<void> updateCarsSaved(List<Car>? newCarsSaved) async {
     if (newCarsSaved == null) return;
     _carsSaved = newCarsSaved;

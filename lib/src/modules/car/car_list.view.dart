@@ -2,25 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'car_add.view.dart';
+import 'car_archive_list.view.dart';
 import 'widget/car_card.widget.dart';
 import '../filters/filters.view.dart';
 import '../settings/settings.controller.dart';
 import '../settings/settings.view.dart';
 
-/// Displays a list of SampleItems.
 class CarListView extends StatelessWidget {
-  const CarListView({
-    Key? key,
-    required this.controller,
-  }) : super(key: key);
+  final SettingsController controller;
+
+  const CarListView({Key? key, required this.controller}) : super(key: key);
 
   static const routeName = '/';
 
-  final SettingsController controller;
-
   @override
   Widget build(BuildContext context) {
-    final carsSaved = controller.carsSaved;
+    final cars = controller.carsSaved.where((car) => !car.isArchive).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -36,14 +33,25 @@ class CarListView extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            onPressed: () => Navigator.of(context).pushNamed(CarAddView.routeName),
-            color: Theme.of(context).colorScheme.onSurface,
             icon: const Icon(Icons.add),
+            color: Theme.of(context).colorScheme.onSurface,
+            onPressed: () {
+              Navigator.of(context).pushNamed(CarAddView.routeName);
+            },
           ),
           IconButton(
-            onPressed: () => Navigator.of(context).pushNamed(SettingsView.routeName),
+            icon: const Icon(Icons.archive_outlined),
             color: Theme.of(context).colorScheme.onSurface,
+            onPressed: () {
+              Navigator.of(context).pushNamed(CarArchiveListView.routeName);
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
+            color: Theme.of(context).colorScheme.onSurface,
+            onPressed: () {
+              Navigator.of(context).pushNamed(SettingsView.routeName);
+            },
           ),
         ],
       ),
@@ -54,12 +62,9 @@ class CarListView extends StatelessWidget {
         heroTag: 'Filters',
       ),
       body: ListView.builder(
-        restorationId: 'sampleItemListView',
         padding: const EdgeInsets.only(top: 16, bottom: 82),
-        itemCount: carsSaved.length,
-        itemBuilder: (BuildContext context, int index) {
-          return CarCard(car: carsSaved[index]);
-        },
+        itemCount: cars.length,
+        itemBuilder: (_, int index) => CarCard(car: cars[index]),
       ),
     );
   }

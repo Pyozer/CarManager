@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:intl/intl.dart';
 
 import '../../../utils/number.extension.dart';
@@ -17,13 +15,14 @@ class Car {
   final int hp;
   final int price;
   final HandDrive handDrive;
-  final bool isSold;
+  bool isSold;
+  bool isArchive;
   final String adUrl;
   final DateTime adDate;
   final String? plate;
   final String? vin;
 
-  const Car({
+  Car({
     required this.uuid,
     required this.title,
     required this.imagesUrl,
@@ -35,6 +34,7 @@ class Car {
     required this.price,
     required this.handDrive,
     required this.isSold,
+    required this.isArchive,
     required this.adUrl,
     required this.adDate,
     this.plate,
@@ -57,8 +57,8 @@ class Car {
     return handDrive == HandDrive.right ? 'RHD' : 'LHD';
   }
 
-  String toJSON() {
-    return jsonEncode({
+  Map<String, dynamic> toJSON() {
+    return {
       'uuid': uuid,
       'title': title,
       'imagesUrl': imagesUrl,
@@ -70,11 +70,12 @@ class Car {
       'price': price,
       'handDrive': handDrive.name,
       'isSold': isSold,
+      'isArchive': isArchive,
       'adUrl': adUrl,
       'adDate': adDate.toIso8601String(),
       'plate': plate,
       'vin': vin,
-    });
+    };
   }
 
   static Car fromJSON(dynamic data) {
@@ -93,6 +94,7 @@ class Car {
         orElse: () => HandDrive.left,
       ),
       isSold: data['isSold'],
+      isArchive: data['isArchive'],
       adUrl: data['adUrl'],
       adDate: DateTime.parse(data['adDate']),
       plate: data['plate'],

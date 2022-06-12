@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 import 'settings.controller.dart';
 
 class SettingsView extends StatelessWidget {
+  final SettingsController controller;
+
   const SettingsView({Key? key, required this.controller}) : super(key: key);
 
   static const routeName = '/settings';
-
-  final SettingsController controller;
 
   @override
   Widget build(BuildContext context) {

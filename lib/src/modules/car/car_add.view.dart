@@ -1,7 +1,7 @@
-import 'dart:typed_data';
+import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:reorderables/reorderables.dart';
@@ -18,18 +18,18 @@ import '../../widgets/add_image_square.widget.dart';
 import '../settings/settings.controller.dart';
 import 'widget/add_image_dialog.widget.dart';
 
-Future<Uint8List?> networkImageData(String imageUrl) async {
-  try {
-    final imageData = await NetworkAssetBundle(Uri.parse(imageUrl)).load('');
-    return imageData.buffer.asUint8List();
-  } catch (_) {}
-  return null;
+class CarAddViewArguments {
+  final Car? baseCar;
+
+  CarAddViewArguments({this.baseCar});
 }
 
 class CarAddView extends StatefulWidget {
   final SettingsController controller;
+  final Car? baseCar;
 
-  const CarAddView({Key? key, required this.controller}) : super(key: key);
+  const CarAddView({Key? key, required this.controller, this.baseCar})
+      : super(key: key);
 
   static const routeName = '/car_add';
 
@@ -43,29 +43,49 @@ class _CarAddViewState extends State<CarAddView> {
     GlobalKey<FormState>(),
     GlobalKey<FormState>(),
   ];
-  final _titleController = TextEditingController();
-  final _descController = TextEditingController();
-  final _kmController = TextEditingController();
-  final _monthController = TextEditingController();
-  final _yearController = TextEditingController();
-  final _hpController = TextEditingController();
-  final _priceController = TextEditingController();
-  final _adUrlController = TextEditingController();
-  final _adDateController = TextEditingController();
-  final _plateController = TextEditingController();
-  final _vinController = TextEditingController();
+  late final TextEditingController _titleController;
+  late final TextEditingController _descController;
+  late final TextEditingController _kmController;
+  late final TextEditingController _monthController;
+  late final TextEditingController _yearController;
+  late final TextEditingController _hpController;
+  late final TextEditingController _priceController;
+  late final TextEditingController _adUrlController;
+  late final TextEditingController _adDateController;
+  late final TextEditingController _plateController;
+  late final TextEditingController _vinController;
 
   late final Validator _validator;
 
   int _currentStep = 0;
   bool _isLoading = false;
 
-  final List<String> _imagesUrl = [];
+  List<String> _imagesUrl = [];
   Map<String, dynamic> car = {
     'uuid': const Uuid().v4(),
     'handDrive': HandDrive.left.name,
     'isSold': false,
   };
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.baseCar != null) {
+      car = jsonDecode(jsonEncode(widget.baseCar!.toJSON()));
+    }
+    _titleController = TextEditingController(text: car['title']);
+    _descController = TextEditingController(text: car['description']);
+    _kmController = TextEditingController(text: car['kms']?.toString());
+    _monthController = TextEditingController(text: car['month']?.toString());
+    _yearController = TextEditingController(text: car['year']?.toString());
+    _hpController = TextEditingController(text: car['hp']?.toString());
+    _priceController = TextEditingController(text: car['price']?.toString());
+    _adUrlController = TextEditingController(text: car['adUrl']);
+    _adDateController = TextEditingController(text: car['adDate']);
+    _plateController = TextEditingController(text: car['plate']);
+    _vinController = TextEditingController(text: car['vin']);
+    _imagesUrl = List<String>.from(car['imagesUrl'] ?? []);
+  }
 
   @override
   void didChangeDependencies() {
@@ -92,33 +112,53 @@ class _CarAddViewState extends State<CarAddView> {
   Future<void> _addCar() async {
     setState(() => _isLoading = true);
 
-    final imageStoragePath = 'images/${car['uuid']}';
-    final imagesStorageUrls = await Future.wait(
-      _imagesUrl.mapIndexed((index, imageUrl) {
-        return saveImageToStorage(imageUrl, imageStoragePath, index);
-      }),
-    );
-
-    if (imagesStorageUrls.any((img) => img == null)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text(
-            'Error during image saving to storage !',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          duration: const Duration(seconds: 2),
-        ),
+    if (widget.baseCar == null ||
+        !listEquals(widget.baseCar!.imagesUrl, _imagesUrl)) {
+      // Download all images
+      final imagesData = await Future.wait(
+        _imagesUrl.mapIndexed((index, imageUrl) => networkImageData(imageUrl)),
       );
-      return;
+
+      // Delete current saved images to avoid duplicates in storage
+      final imageStoragePath = 'images/${car['uuid']}';
+      await deleteAllFromStorage(imageStoragePath);
+
+      // Upload images previously downloaded
+      final imagesStorageUrls = await Future.wait(
+        imagesData.whereNotNull().mapIndexed((index, imageUrl) {
+          return saveToStorage(imageUrl, imageStoragePath, index);
+        }),
+      );
+
+      if (imagesStorageUrls.any((img) => img == null)) {
+        setState(() => _isLoading = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text(
+              'Error during image saving to storage !',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.error,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        return;
+      }
+
+      car['imagesUrl'] = imagesStorageUrls;
     }
-
-    car['imagesUrl'] = imagesStorageUrls;
     final newCar = Car.fromJSON(car);
-    await widget.controller.addCar(newCar);
-    Navigator.of(context).pop();
 
-    setState(() => _isLoading = false);
+    if (widget.baseCar != null) {
+      final index = widget.controller.carsSaved.indexWhere(
+        (car) => car.uuid == widget.baseCar!.uuid,
+      );
+      widget.controller.carsSaved[index] = newCar;
+      await widget.controller.updateCarsSaved(widget.controller.carsSaved);
+    } else {
+      await widget.controller.addCar(newCar);
+    }
+    Navigator.of(context).pop();
   }
 
   void _updateCarValue(String fieldKey, dynamic value) {
@@ -207,7 +247,9 @@ class _CarAddViewState extends State<CarAddView> {
         controller: _adUrlController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         keyboardType: TextInputType.url,
-        decoration: inputDeco(labelText: 'Lien de l\'annonce *'),
+        decoration: inputDeco(labelText: 'Lien de l\'annonce *').copyWith(
+          suffixIcon: const Icon(Icons.link),
+        ),
         onChanged: (value) => _updateCarValue('adUrl', value),
         validator: _validator.noEmpty,
       ),
@@ -234,6 +276,28 @@ class _CarAddViewState extends State<CarAddView> {
           _updateCarValue('adDate', date.toIso8601String());
         },
         validator: _validator.noEmpty,
+      ),
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Statut'),
+          Wrap(
+            spacing: 16,
+            children: [false, true].map((isSold) {
+              return ChoiceChip(
+                label: Text(isSold ? 'Vendu' : 'A vendre'),
+                labelStyle: isSold == car['isSold']
+                    ? const TextStyle(color: Colors.white)
+                    : null,
+                elevation: 4,
+                selectedColor: Theme.of(context).colorScheme.secondary,
+                selected: isSold == car['isSold'],
+                onSelected: (_) => _updateCarValue('isSold', isSold),
+              );
+            }).toList(),
+          ),
+        ],
       ),
     ].superJoin(const SizedBox(height: 24));
   }
@@ -398,7 +462,7 @@ class _CarAddViewState extends State<CarAddView> {
           ? FloatingActionButton.extended(
               onPressed: !_isLoading ? _addCar : null,
               label: _isLoading
-                  ? const Text('Ajout en cours')
+                  ? const Text('Ajout en cours…')
                   : const Text('Ajouter'),
               icon: _isLoading ? _buildLoader() : const Icon(Icons.add),
             )
@@ -425,8 +489,11 @@ class _CarAddViewState extends State<CarAddView> {
           }
           setState(() => _currentStep = step);
         },
-        onStepCancel:
-            _currentStep > 0 ? () => setState(() => _currentStep--) : null,
+        onStepCancel: _currentStep > 0
+            ? () {
+                setState(() => _currentStep--);
+              }
+            : null,
         steps: [
           _buildStep(
             title: 'Info',

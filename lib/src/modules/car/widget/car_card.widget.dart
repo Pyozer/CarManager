@@ -25,7 +25,7 @@ class CarCard extends StatelessWidget {
           Navigator.pushNamed(
             context,
             CarDetailsView.routeName,
-            arguments: CarDetailsViewArguments(car: car),
+            arguments: CarDetailsViewArguments(carUUID: car.uuid),
           );
         },
         child: ClipRRect(
