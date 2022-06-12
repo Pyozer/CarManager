@@ -21,19 +21,19 @@ class AddImageSquare extends StatelessWidget {
       key: Key(imageUrl ?? ''),
       reorderable: imageUrl != null,
       child: SizedBox.square(
-        dimension: 100.0,
+        dimension: 100,
         child: Card(
-          elevation: 5.0,
+          elevation: 5,
           margin: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: InkWell(
-            borderRadius: BorderRadius.circular(12.0),
+            borderRadius: BorderRadius.circular(12),
             onTap: imageUrl == null ? onAdd : onImageTap,
             child: imageUrl != null
                 ? ClipRRect(
-                    borderRadius: BorderRadius.circular(12.0),
+                    borderRadius: BorderRadius.circular(12),
                     child: ImageNetworkLoader(imageUrl!, height: 105),
                   )
                 : const Center(child: Icon(Icons.add_a_photo, size: 105 / 2.7)),

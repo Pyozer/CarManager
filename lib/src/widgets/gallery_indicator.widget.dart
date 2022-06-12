@@ -15,7 +15,7 @@ class GalleryIndicators extends StatelessWidget {
       child: Chip(
         avatar: const Icon(Icons.image_outlined, size: 18),
         backgroundColor: Colors.transparent,
-        padding: const EdgeInsets.fromLTRB(6.0, 4.0, 4.0, 4.0),
+        padding: const EdgeInsets.fromLTRB(6, 4, 4, 4),
         label: Text('$currentPage / $totalPage'),
       ),
     );

@@ -13,10 +13,10 @@ class CarCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final borderRadius = BorderRadius.circular(12.0);
+    final borderRadius = BorderRadius.circular(12);
 
     return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
       child: InkWell(
@@ -42,18 +42,18 @@ class CarCard extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(car.title, style: textTheme.titleSmall),
-                    const SizedBox(height: 8.0),
+                    const SizedBox(height: 8),
                     Text(
                       '${car.displayDate} - ${car.displayKMs} - ${car.displayHandDrive}',
                       style: textTheme.bodySmall,
                     ),
-                    const SizedBox(height: 16.0),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [

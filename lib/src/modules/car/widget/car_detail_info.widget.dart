@@ -16,7 +16,7 @@ class CarDetailInfo extends StatelessWidget {
       margin: EdgeInsets.zero,
       elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: InkWell(
         onLongPress: () async {
@@ -28,15 +28,15 @@ class CarDetailInfo extends StatelessWidget {
             ),
           );
         },
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(title, style: textTheme.bodySmall),
-              const SizedBox(height: 8.0),
+              const SizedBox(height: 8),
               Text(content, style: textTheme.titleSmall),
             ],
           ),

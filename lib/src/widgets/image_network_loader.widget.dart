@@ -14,7 +14,7 @@ class ImageNetworkLoader extends StatelessWidget {
       child: Center(
         child: Icon(
           Icons.broken_image_outlined,
-          size: height != null ? height! / 2.7 : 65.0,
+          size: height != null ? height! / 2.7 : 65,
           color: Colors.grey[700],
         ),
       ),

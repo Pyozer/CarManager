@@ -1,9 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:collection/collection.dart';
 import 'package:intl/intl.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../modules/car/model/car.model.dart';
+import '../../utils/image.util.dart';
 import '../../utils/regexp.util.dart';
 import '../../utils/list.extension.dart';
 import '../../utils/string.extension.dart';
@@ -12,6 +17,14 @@ import '../../widgets/stepper_controls.widget.dart';
 import '../../widgets/add_image_square.widget.dart';
 import '../settings/settings.controller.dart';
 import 'widget/add_image_dialog.widget.dart';
+
+Future<Uint8List?> networkImageData(String imageUrl) async {
+  try {
+    final imageData = await NetworkAssetBundle(Uri.parse(imageUrl)).load('');
+    return imageData.buffer.asUint8List();
+  } catch (_) {}
+  return null;
+}
 
 class CarAddView extends StatefulWidget {
   final SettingsController controller;
@@ -45,10 +58,11 @@ class _CarAddViewState extends State<CarAddView> {
   late final Validator _validator;
 
   int _currentStep = 0;
+  bool _isLoading = false;
 
+  final List<String> _imagesUrl = [];
   Map<String, dynamic> car = {
     'uuid': const Uuid().v4(),
-    'imagesUrl': List<String>.from([]),
     'handDrive': HandDrive.left.name,
     'isSold': false,
   };
@@ -75,8 +89,53 @@ class _CarAddViewState extends State<CarAddView> {
     super.dispose();
   }
 
+  Future<void> _addCar() async {
+    setState(() => _isLoading = true);
+
+    final imageStoragePath = 'images/${car['uuid']}';
+    final imagesStorageUrls = await Future.wait(
+      _imagesUrl.mapIndexed((index, imageUrl) {
+        return saveImageToStorage(imageUrl, imageStoragePath, index);
+      }),
+    );
+
+    if (imagesStorageUrls.any((img) => img == null)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text(
+            'Error during image saving to storage !',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    car['imagesUrl'] = imagesStorageUrls;
+    final newCar = Car.fromJSON(car);
+    await widget.controller.addCar(newCar);
+    Navigator.of(context).pop();
+
+    setState(() => _isLoading = false);
+  }
+
   void _updateCarValue(String fieldKey, dynamic value) {
     setState(() => car[fieldKey] = value);
+  }
+
+  Widget _buildLoader() {
+    return const Padding(
+      padding: EdgeInsets.only(right: 8),
+      child: SizedBox.square(
+        dimension: 17,
+        child: CircularProgressIndicator(
+          color: Colors.white,
+          strokeWidth: 2,
+        ),
+      ),
+    );
   }
 
   String _displayHandDrive(HandDrive value) {
@@ -176,7 +235,7 @@ class _CarAddViewState extends State<CarAddView> {
         },
         validator: _validator.noEmpty,
       ),
-    ].superJoin(const SizedBox(height: 24.0));
+    ].superJoin(const SizedBox(height: 24));
   }
 
   List<Widget> _buildStepTech() {
@@ -211,7 +270,7 @@ class _CarAddViewState extends State<CarAddView> {
                 validator: (value) => _validator.inRange(value, 1, 12),
               ),
             ),
-            const SizedBox(width: 24.0),
+            const SizedBox(width: 24),
             Expanded(
               child: TextFormField(
                 controller: _yearController,
@@ -243,14 +302,14 @@ class _CarAddViewState extends State<CarAddView> {
         children: [
           const Text('Conduite'),
           Wrap(
-            spacing: 16.0,
+            spacing: 16,
             children: HandDrive.values.map((handDrive) {
               return ChoiceChip(
                 label: Text(_displayHandDrive(handDrive)),
                 labelStyle: handDrive.name == car['handDrive']
                     ? const TextStyle(color: Colors.white)
                     : null,
-                elevation: 4.0,
+                elevation: 4,
                 selectedColor: Theme.of(context).colorScheme.secondary,
                 selected: handDrive.name == car['handDrive'],
                 onSelected: (bool selected) {
@@ -280,23 +339,23 @@ class _CarAddViewState extends State<CarAddView> {
         onChanged: (value) => _updateCarValue('vin', value),
         validator: (value) => _validator.emptyOrRegex(value, carVINRegExp),
       ),
-    ].superJoin(const SizedBox(height: 24.0));
+    ].superJoin(const SizedBox(height: 24));
   }
 
   List<Widget> _buildStepImages() {
     return <Widget>[
       ReorderableWrap(
-        spacing: 12.0,
-        runSpacing: 12.0,
+        spacing: 12,
+        runSpacing: 12,
         onReorder: (int oldIndex, int newIndex) {
           setState(() {
-            String imageUrl = car['imagesUrl'].removeAt(oldIndex - 1);
-            car['imagesUrl'].insert(newIndex - 1, imageUrl);
+            String imageUrl = _imagesUrl.removeAt(oldIndex - 1);
+            _imagesUrl.insert(newIndex - 1, imageUrl);
           });
         },
-        children: List.generate(car['imagesUrl'].length + 1, (index) {
+        children: List.generate(_imagesUrl.length + 1, (index) {
           return AddImageSquare(
-            imageUrl: index > 0 ? car['imagesUrl'][index - 1] : null,
+            imageUrl: index > 0 ? _imagesUrl[index - 1] : null,
             onAdd: () async {
               final imageUrl = await showDialog(
                 context: context,
@@ -305,7 +364,7 @@ class _CarAddViewState extends State<CarAddView> {
               if (imageUrl == null) return;
 
               if (Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false) {
-                setState(() => car['imagesUrl'].add(imageUrl));
+                setState(() => _imagesUrl.add(imageUrl));
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -320,12 +379,12 @@ class _CarAddViewState extends State<CarAddView> {
               }
             },
             onImageTap: () {
-              setState(() => car['imagesUrl'].removeAt(index - 1));
+              setState(() => _imagesUrl.removeAt(index - 1));
             },
           );
         }),
       ),
-      const SizedBox(height: 24.0),
+      const SizedBox(height: 24),
     ];
   }
 
@@ -337,24 +396,20 @@ class _CarAddViewState extends State<CarAddView> {
       ),
       floatingActionButton: _currentStep == 2
           ? FloatingActionButton.extended(
-              onPressed: () async {
-                final newCar = Car.fromJSON(car);
-                await widget.controller.addCar(newCar);
-                Navigator.of(context).pop();
-              },
-              label: const Text('Ajouter'),
-              icon: const Icon(Icons.add),
+              onPressed: !_isLoading ? _addCar : null,
+              label: _isLoading
+                  ? const Text('Ajout en cours')
+                  : const Text('Ajouter'),
+              icon: _isLoading ? _buildLoader() : const Icon(Icons.add),
             )
           : null,
       body: Stepper(
         type: StepperType.horizontal,
         currentStep: _currentStep,
-        controlsBuilder: (_, details) {
-          return StepperControls(
-            onStepContinue: details.onStepContinue,
-            onStepCancel: details.onStepCancel,
-          );
-        },
+        controlsBuilder: (_, details) => StepperControls(
+          onStepContinue: details.onStepContinue,
+          onStepCancel: details.onStepCancel,
+        ),
         onStepContinue: _currentStep < 2
             ? () {
                 if (_formKeys[_currentStep].currentState?.validate() ?? false) {
@@ -370,11 +425,8 @@ class _CarAddViewState extends State<CarAddView> {
           }
           setState(() => _currentStep = step);
         },
-        onStepCancel: _currentStep > 0
-            ? () {
-                setState(() => _currentStep--);
-              }
-            : null,
+        onStepCancel:
+            _currentStep > 0 ? () => setState(() => _currentStep--) : null,
         steps: [
           _buildStep(
             title: 'Info',

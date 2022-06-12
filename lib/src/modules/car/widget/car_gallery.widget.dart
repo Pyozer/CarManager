@@ -49,7 +49,7 @@ class _CarGalleryState extends State<CarGallery> {
           Align(
             alignment: Alignment.bottomLeft,
             child: Padding(
-              padding: const EdgeInsets.only(left: 8.0),
+              padding: const EdgeInsets.only(left: 8),
               child: GalleryIndicators(
                 currentPage: _currentPage + 1,
                 totalPage: widget.imagesUrl.length,

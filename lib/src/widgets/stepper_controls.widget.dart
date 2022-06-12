@@ -28,17 +28,17 @@ class StepperControls extends StatelessWidget {
 
     const OutlinedBorder buttonShape = RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(2)));
-    const EdgeInsets buttonPadding = EdgeInsets.symmetric(horizontal: 16.0);
+    const EdgeInsets buttonPadding = EdgeInsets.symmetric(horizontal: 16);
 
     return Container(
-      margin: const EdgeInsets.only(top: 16.0),
+      margin: const EdgeInsets.only(top: 16),
       child: ConstrainedBox(
-        constraints: const BoxConstraints.tightFor(height: 48.0),
+        constraints: const BoxConstraints.tightFor(height: 48),
         child: Row(
           children: <Widget>[
             if (onStepCancel != null)
               Container(
-                margin: const EdgeInsetsDirectional.only(end: 8.0),
+                margin: const EdgeInsetsDirectional.only(end: 8),
                 child: TextButton(
                   onPressed: onStepCancel,
                   style: TextButton.styleFrom(

@@ -29,7 +29,7 @@ class CarListView extends StatelessWidget {
         title: Text(
           AppLocalizations.of(context)!.carListTitle,
           style: TextStyle(
-            fontSize: 30.0,
+            fontSize: 30,
             fontWeight: FontWeight.w700,
             color: Theme.of(context).colorScheme.onSurface,
           ),
@@ -55,7 +55,7 @@ class CarListView extends StatelessWidget {
       ),
       body: ListView.builder(
         restorationId: 'sampleItemListView',
-        padding: const EdgeInsets.only(top: 16, bottom: 116),
+        padding: const EdgeInsets.only(top: 16, bottom: 82),
         itemCount: carsSaved.length,
         itemBuilder: (BuildContext context, int index) {
           return CarCard(car: carsSaved[index]);

@@ -34,7 +34,7 @@ class CarDetailsView extends StatelessWidget {
       int flex2 = ((content2?.length ?? 1) / (content1?.length ?? 1)).round();
 
       return Padding(
-        padding: const EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 0.0),
+        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
         child: Row(
           children: [
             if (title1 != null && content1 != null)
@@ -45,7 +45,7 @@ class CarDetailsView extends StatelessWidget {
                   content: content1,
                 ),
               ),
-            if (title2 != null && content2 != null) const SizedBox(width: 12.0),
+            if (title2 != null && content2 != null) const SizedBox(width: 12),
             if (title2 != null && content2 != null)
               Expanded(
                 flex: flex2,
@@ -73,7 +73,7 @@ class CarDetailsView extends StatelessWidget {
         child: const Icon(Icons.visibility),
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 124.0),
+        padding: const EdgeInsets.only(bottom: 124),
         children: [
           Stack(
             children: [
@@ -83,9 +83,9 @@ class CarDetailsView extends StatelessWidget {
           ),
           if (car.isSold)
             Material(
-              elevation: 4.0,
+              elevation: 4,
               child: Container(
-                padding: const EdgeInsets.all(10.0),
+                padding: const EdgeInsets.all(10),
                 color: Theme.of(context).colorScheme.error,
                 child: const Text(
                   'VENDU',

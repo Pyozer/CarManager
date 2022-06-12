@@ -23,17 +23,17 @@ class ReturnButton extends StatelessWidget {
     return Align(
       alignment: Alignment.topLeft,
       child: SafeArea(
-        minimum: const EdgeInsets.all(16.0),
+        minimum: const EdgeInsets.all(16),
         child: Card(
           elevation: 10,
           color: Colors.black45,
           margin: EdgeInsets.zero,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(35.0),
+            borderRadius: BorderRadius.circular(35),
           ),
           child: InkWell(
             onTap: Navigator.of(context).maybePop,
-            borderRadius: BorderRadius.circular(35.0),
+            borderRadius: BorderRadius.circular(35),
             child: SizedBox(
                 width: 35,
                 height: 35,

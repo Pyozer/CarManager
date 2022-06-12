@@ -4,7 +4,7 @@
     "description": "The title of the application"
   },
 
-  "carListTitle": "Car ads",
+  "carListTitle": "Cars",
   "@carListTitle": {
     "description": "The title of the car saved list screen"
   },
