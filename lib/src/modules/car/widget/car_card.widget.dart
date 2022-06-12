@@ -1,7 +1,7 @@
-import 'package:car_manager/src/widgets/image_network_loader.widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
+import '../../../widgets/image_network_loader.widget.dart';
 import '../model/car.model.dart';
 import '../car_details.view.dart';
 

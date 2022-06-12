@@ -1,6 +1,6 @@
-import 'package:car_manager/src/utils/data.util.dart';
 import 'package:flutter/material.dart';
 
+import '../../utils/data.util.dart';
 import '../car/model/car.model.dart';
 import 'settings.service.dart';
 

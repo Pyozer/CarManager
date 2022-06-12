@@ -7,7 +7,7 @@ import '../../../utils/number.extension.dart';
 enum HandDrive { left, right }
 
 class Car {
-  final int id;
+  final String uuid;
   final String title;
   final List<String> imagesUrl;
   final String description;
@@ -24,7 +24,7 @@ class Car {
   final String? vin;
 
   const Car({
-    required this.id,
+    required this.uuid,
     required this.title,
     required this.imagesUrl,
     required this.description,
@@ -59,7 +59,7 @@ class Car {
 
   String toJSON() {
     return jsonEncode({
-      'id': id,
+      'uuid': uuid,
       'title': title,
       'imagesUrl': imagesUrl,
       'description': description,
@@ -79,7 +79,7 @@ class Car {
 
   static Car fromJSON(dynamic data) {
     return Car(
-      id: data['id'],
+      uuid: data['uuid'],
       title: data['title'],
       imagesUrl: List.from(data['imagesUrl']),
       description: data['description'],
@@ -90,6 +90,7 @@ class Car {
       price: data['price'],
       handDrive: HandDrive.values.firstWhere(
         (v) => v.name == data['handDrive'],
+        orElse: () => HandDrive.left,
       ),
       isSold: data['isSold'],
       adUrl: data['adUrl'],

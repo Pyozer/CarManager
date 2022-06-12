@@ -1,11 +1,17 @@
-import 'package:car_manager/src/modules/settings/settings.controller.dart';
-import 'package:car_manager/src/widgets/image_network_loader.widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:reorderables/reorderables.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../modules/car/model/car.model.dart';
 import '../../utils/regexp.util.dart';
+import '../../utils/list.extension.dart';
 import '../../utils/string.extension.dart';
+import '../../utils/validators.utils.dart';
+import '../../widgets/stepper_controls.widget.dart';
+import '../../widgets/add_image_square.widget.dart';
+import '../settings/settings.controller.dart';
+import 'widget/add_image_dialog.widget.dart';
 
 class CarAddView extends StatefulWidget {
   final SettingsController controller;
@@ -19,65 +25,308 @@ class CarAddView extends StatefulWidget {
 }
 
 class _CarAddViewState extends State<CarAddView> {
-  final _formKey = GlobalKey<FormState>();
-  Map<String, dynamic> car = {'imagesUrl': List<String>.from([])};
+  final _formKeys = [
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+    GlobalKey<FormState>(),
+  ];
+  final _titleController = TextEditingController();
+  final _descController = TextEditingController();
+  final _kmController = TextEditingController();
+  final _monthController = TextEditingController();
+  final _yearController = TextEditingController();
+  final _hpController = TextEditingController();
+  final _priceController = TextEditingController();
+  final _adUrlController = TextEditingController();
+  final _adDateController = TextEditingController();
+  final _plateController = TextEditingController();
+  final _vinController = TextEditingController();
 
-  String? _checkNoEmpty(String? value) {
-    if (value?.isEmpty ?? true) return 'Field required';
-    return null;
+  late final Validator _validator;
+
+  int _currentStep = 0;
+
+  Map<String, dynamic> car = {
+    'uuid': const Uuid().v4(),
+    'imagesUrl': List<String>.from([]),
+    'handDrive': HandDrive.left.name,
+    'isSold': false,
+  };
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _validator = Validator(context);
   }
 
-  String? _checkEmptyOrRegex(String? value, RegExpInfo regExpInfo) {
-    if (value?.isEmpty ?? true) return null;
-    if (regExpInfo.regexp.hasMatch(value!)) return null;
-    return 'Field must match like this ${regExpInfo.pattern}';
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _descController.dispose();
+    _kmController.dispose();
+    _monthController.dispose();
+    _yearController.dispose();
+    _hpController.dispose();
+    _priceController.dispose();
+    _adUrlController.dispose();
+    _adDateController.dispose();
+    _plateController.dispose();
+    _vinController.dispose();
+    super.dispose();
   }
 
-  String? _checkIsNumber(String? value) {
-    final isEmptyCheck = _checkNoEmpty(value);
-    if (isEmptyCheck != null) return isEmptyCheck;
-    if (int.tryParse(value ?? '') == null) return 'Field must be a number';
-    return null;
+  void _updateCarValue(String fieldKey, dynamic value) {
+    setState(() => car[fieldKey] = value);
   }
 
-  String? _checkInRange(String? value, int from, [int to = 1000000]) {
-    final isNumberCheck = _checkIsNumber(value);
-    if (isNumberCheck != null) return isNumberCheck;
-    if (int.parse(value!) < from || int.parse(value) > to) {
-      return 'Field must be between $from and $to';
+  String _displayHandDrive(HandDrive value) {
+    if (value == HandDrive.left) {
+      return 'A gauche';
     }
-    return null;
+    return 'A droite';
   }
 
-  Future<String?> showAddImageDialog() {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        final controller = TextEditingController();
-        return AlertDialog(
-          title: Text('Enter image URL'),
-          actions: [
-            TextButton(
-              child: Text('CANCEL'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+  InputDecoration inputDeco({String? labelText}) {
+    return InputDecoration(
+      labelText: labelText,
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      filled: true,
+    );
+  }
+
+  Step _buildStep({
+    required String title,
+    required int stepIndex,
+    required List<Widget> content,
+  }) {
+    return Step(
+      title: Text(title),
+      state: _currentStep > stepIndex ? StepState.complete : StepState.indexed,
+      isActive: _currentStep == stepIndex,
+      content: Form(
+        key: _formKeys[stepIndex],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: content,
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildStepInfo() {
+    return <Widget>[
+      TextFormField(
+        controller: _titleController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        decoration: inputDeco(labelText: 'Titre *'),
+        onChanged: (value) => _updateCarValue('title', value),
+        validator: _validator.noEmpty,
+      ),
+      TextFormField(
+        controller: _descController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        minLines: 5,
+        maxLines: 15,
+        decoration: inputDeco(labelText: 'Description *'),
+        onChanged: (value) => _updateCarValue('description', value),
+        validator: _validator.noEmpty,
+      ),
+      TextFormField(
+        controller: _priceController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        keyboardType: const TextInputType.numberWithOptions(
+          signed: true,
+          decimal: false,
+        ),
+        decoration: inputDeco(labelText: 'Prix *').copyWith(
+          suffixIcon: const Icon(Icons.euro),
+        ),
+        onChanged: (value) => _updateCarValue('price', int.tryParse(value)),
+        validator: (value) => _validator.inRange(value, 1),
+      ),
+      TextFormField(
+        controller: _adUrlController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        keyboardType: TextInputType.url,
+        decoration: inputDeco(labelText: 'Lien de l\'annonce *'),
+        onChanged: (value) => _updateCarValue('adUrl', value),
+        validator: _validator.noEmpty,
+      ),
+      TextFormField(
+        controller: _adDateController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        keyboardType: TextInputType.url,
+        decoration: inputDeco(labelText: 'Date ajout de l\'annonce *'),
+        readOnly: true,
+        onTap: () async {
+          final date = await showDatePicker(
+            context: context,
+            initialDate: car['adDate'] != null
+                ? DateTime.parse(car['adDate'])
+                : DateTime.now(),
+            firstDate: DateTime.now().subtract(const Duration(days: 365)),
+            lastDate: DateTime.now(),
+          );
+          if (date == null) return;
+
+          _adDateController.text = DateFormat.yMMMMEEEEd(
+            Localizations.localeOf(context).languageCode,
+          ).format(date).capitalize();
+          _updateCarValue('adDate', date.toIso8601String());
+        },
+        validator: _validator.noEmpty,
+      ),
+    ].superJoin(const SizedBox(height: 24.0));
+  }
+
+  List<Widget> _buildStepTech() {
+    const keyboardType = TextInputType.numberWithOptions(
+      signed: true,
+      decimal: false,
+    );
+
+    return <Widget>[
+      TextFormField(
+        controller: _kmController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        keyboardType: keyboardType,
+        decoration: inputDeco(labelText: 'Kilométrage *').copyWith(
+          suffixText: 'KM',
+        ),
+        onChanged: (value) => _updateCarValue('kms', int.tryParse(value)),
+        validator: (value) => _validator.inRange(value, 1),
+      ),
+      IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: TextFormField(
+                controller: _monthController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                keyboardType: keyboardType,
+                decoration: inputDeco(labelText: 'Mois *'),
+                onChanged: (value) =>
+                    _updateCarValue('month', int.tryParse(value)),
+                validator: (value) => _validator.inRange(value, 1, 12),
+              ),
             ),
-            TextButton(
-              child: Text('ADD'),
-              onPressed: () {
-                Navigator.of(context).pop(controller.text);
-              },
+            const SizedBox(width: 24.0),
+            Expanded(
+              child: TextFormField(
+                controller: _yearController,
+                autovalidateMode: AutovalidateMode.onUserInteraction,
+                keyboardType: keyboardType,
+                decoration: inputDeco(labelText: 'Année *'),
+                onChanged: (value) =>
+                    _updateCarValue('year', int.tryParse(value)),
+                validator: (value) =>
+                    _validator.inRange(value, 1950, DateTime.now().year + 1),
+              ),
             ),
           ],
-          content: TextField(
-            controller: controller,
-            decoration:
-                const InputDecoration(hintText: 'Image url, like https://...'),
+        ),
+      ),
+      TextFormField(
+        controller: _hpController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        keyboardType: keyboardType,
+        decoration: inputDeco(labelText: 'Puissance *').copyWith(
+          suffixText: 'HP',
+        ),
+        onChanged: (value) => _updateCarValue('hp', int.tryParse(value)),
+        validator: (value) => _validator.inRange(value, 1, 1000),
+      ),
+      Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const Text('Conduite'),
+          Wrap(
+            spacing: 16.0,
+            children: HandDrive.values.map((handDrive) {
+              return ChoiceChip(
+                label: Text(_displayHandDrive(handDrive)),
+                labelStyle: handDrive.name == car['handDrive']
+                    ? const TextStyle(color: Colors.white)
+                    : null,
+                elevation: 4.0,
+                selectedColor: Theme.of(context).colorScheme.secondary,
+                selected: handDrive.name == car['handDrive'],
+                onSelected: (bool selected) {
+                  _updateCarValue(
+                    'handDrive',
+                    selected ? handDrive.name : null,
+                  );
+                },
+              );
+            }).toList(),
           ),
-        );
-      },
-    );
+        ],
+      ),
+      TextFormField(
+        controller: _plateController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        keyboardType: TextInputType.text,
+        decoration: inputDeco(labelText: 'Plaque immatriculation'),
+        onChanged: (value) => _updateCarValue('plate', value),
+        validator: (value) => _validator.emptyOrRegex(value, carPlateRegExp),
+      ),
+      TextFormField(
+        controller: _vinController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        keyboardType: TextInputType.text,
+        decoration: inputDeco(labelText: 'VIN'),
+        onChanged: (value) => _updateCarValue('vin', value),
+        validator: (value) => _validator.emptyOrRegex(value, carVINRegExp),
+      ),
+    ].superJoin(const SizedBox(height: 24.0));
+  }
+
+  List<Widget> _buildStepImages() {
+    return <Widget>[
+      ReorderableWrap(
+        spacing: 12.0,
+        runSpacing: 12.0,
+        onReorder: (int oldIndex, int newIndex) {
+          setState(() {
+            String imageUrl = car['imagesUrl'].removeAt(oldIndex - 1);
+            car['imagesUrl'].insert(newIndex - 1, imageUrl);
+          });
+        },
+        children: List.generate(car['imagesUrl'].length + 1, (index) {
+          return AddImageSquare(
+            imageUrl: index > 0 ? car['imagesUrl'][index - 1] : null,
+            onAdd: () async {
+              final imageUrl = await showDialog(
+                context: context,
+                builder: (_) => const AddImageDialog(),
+              );
+              if (imageUrl == null) return;
+
+              if (Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false) {
+                setState(() => car['imagesUrl'].add(imageUrl));
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text(
+                      'Invalid image url !',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              }
+            },
+            onImageTap: () {
+              setState(() => car['imagesUrl'].removeAt(index - 1));
+            },
+          );
+        }),
+      ),
+      const SizedBox(height: 24.0),
+    ];
   }
 
   @override
@@ -86,227 +335,63 @@ class _CarAddViewState extends State<CarAddView> {
       appBar: AppBar(
         title: const Text('Add car'),
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          if (!(_formKey.currentState?.validate() ?? false)) {
-            return;
-          }
-          car['id'] = widget.controller.carsSaved.isNotEmpty
-              ? widget.controller.carsSaved.last.id
-              : 1;
-          final newCar = Car.fromJSON(car);
-          await widget.controller.addCar(newCar);
-          Navigator.of(context).pop();
+      floatingActionButton: _currentStep == 2
+          ? FloatingActionButton.extended(
+              onPressed: () async {
+                final newCar = Car.fromJSON(car);
+                await widget.controller.addCar(newCar);
+                Navigator.of(context).pop();
+              },
+              label: const Text('Ajouter'),
+              icon: const Icon(Icons.add),
+            )
+          : null,
+      body: Stepper(
+        type: StepperType.horizontal,
+        currentStep: _currentStep,
+        controlsBuilder: (_, details) {
+          return StepperControls(
+            onStepContinue: details.onStepContinue,
+            onStepCancel: details.onStepCancel,
+          );
         },
-        label: const Text('Ajouter'),
-        icon: const Icon(Icons.add),
-      ),
-      body: Form(
-        key: _formKey,
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        onChanged: () {
-          Form.of(primaryFocus!.context!)!.save();
-        },
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(18.0, 32.0, 18.0, 124.0),
-          children: [
-            const Text('Title'),
-            TextFormField(
-              onChanged: (value) => setState(() => car['title'] = value),
-              validator: (value) {
-                if (value?.isEmpty ?? true) {
-                  return 'Field required';
+        onStepContinue: _currentStep < 2
+            ? () {
+                if (_formKeys[_currentStep].currentState?.validate() ?? false) {
+                  setState(() => _currentStep++);
                 }
-                return null;
-              },
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Description'),
-            TextFormField(
-              minLines: 5,
-              maxLines: 15,
-              onChanged: (value) => setState(() => car['description'] = value),
-              validator: _checkNoEmpty,
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Lien Images'),
-            const SizedBox(height: 12.0),
-            Wrap(
-              spacing: 12.0,
-              runSpacing: 8.0,
-              children: List.generate(car['imagesUrl'].length + 1, (index) {
-                final isLast = index == car['imagesUrl'].length;
-
-                return SizedBox.square(
-                  dimension: 105,
-                  child: Card(
-                    elevation: 4.0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(12.0),
-                      onTap: isLast
-                          ? () async {
-                              final imageUrl = await showAddImageDialog();
-                              if (imageUrl?.trim().isEmpty ?? true) return;
-                              if (!(Uri.tryParse(imageUrl!)?.hasAbsolutePath ??
-                                  false)) return;
-
-                              setState(() => car['imagesUrl'].add(imageUrl));
-                            }
-                          : null,
-                      onLongPress: !isLast
-                          ? () =>
-                              setState(() => car['imagesUrl'].removeAt(index))
-                          : null,
-                      child: isLast
-                          ? const Center(
-                              child: Icon(Icons.add_a_photo, size: 105 / 2.7),
-                            )
-                          : ClipRRect(
-                              borderRadius: BorderRadius.circular(12.0),
-                              child: ImageNetworkLoader(
-                                car['imagesUrl'][index],
-                                height: 105,
-                              ),
-                            ),
-                    ),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 24.0),
-            const Text('KM'),
-            TextFormField(
-              keyboardType: const TextInputType.numberWithOptions(
-                signed: true,
-                decimal: false,
-              ),
-              onChanged: (value) => setState(() => car['kms'] = int.tryParse(value)),
-              validator: (value) => _checkInRange(value, 1),
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Année'),
-            TextFormField(
-              keyboardType: const TextInputType.numberWithOptions(
-                signed: true,
-                decimal: false,
-              ),
-              onChanged: (value) => setState(() => car['year'] = int.tryParse(value)),
-              validator: (value) =>
-                  _checkInRange(value, 1950, DateTime.now().year + 1),
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Mois'),
-            TextFormField(
-              keyboardType: const TextInputType.numberWithOptions(
-                signed: true,
-                decimal: false,
-              ),
-              onChanged: (value) => setState(() => car['month'] = int.tryParse(value)),
-              validator: (value) => _checkInRange(value, 1, 12),
-            ),
-            const SizedBox(height: 24.0),
-            const Text('HP'),
-            TextFormField(
-              keyboardType: const TextInputType.numberWithOptions(
-                signed: true,
-                decimal: false,
-              ),
-              onChanged: (value) => setState(() => car['hp'] = int.tryParse(value)),
-              validator: (value) => _checkInRange(value, 1, 1000),
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Prix'),
-            TextFormField(
-              keyboardType: const TextInputType.numberWithOptions(
-                signed: true,
-                decimal: false,
-              ),
-              decoration: const InputDecoration(suffixIcon: Icon(Icons.euro)),
-              onChanged: (value) => setState(() => car['price'] = int.tryParse(value)),
-              validator: (value) => _checkInRange(value, 1),
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Conduite'),
-            Wrap(
-              spacing: 16.0,
-              children: HandDrive.values.map((handDrive) {
-                return ChoiceChip(
-                  label: Text(handDrive.name.capitalize()),
-                  elevation: 4,
-                  selected: handDrive.name == car['handDrive'],
-                  onSelected: (bool selected) {
-                    setState(() {
-                      car['handDrive'] = selected ? handDrive.name : null;
-                    });
-                  },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24.0),
-            Row(
-              children: [
-                const Text('Vendu ?'),
-                Checkbox(
-                  value: car['isSold'] ?? false,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(3.0),
-                  ),
-                  onChanged: (isSold) => setState(() => car['isSold'] = isSold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Lien de l\'annonce'),
-            TextFormField(
-              keyboardType: TextInputType.url,
-              onChanged: (value) => setState(() => car['adUrl'] = value),
-              validator: _checkNoEmpty,
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Date ajout de l\'annonce'),
-            TextFormField(
-              controller: TextEditingController(
-                text: car['adDate'] != null
-                    ? DateFormat.yMMMEd(
-                            Localizations.localeOf(context).languageCode)
-                        .format(DateTime.parse(car['adDate']))
-                        .capitalize()
-                    : null,
-              ),
-              keyboardType: TextInputType.url,
-              readOnly: true,
-              onTap: () async {
-                final date = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime.now().subtract(const Duration(days: 100)),
-                  lastDate: DateTime.now(),
-                );
-                if (date == null) return;
-                setState(() => car['adDate'] = date.toIso8601String());
-              },
-              onChanged: (value) => setState(() => car['adUrl'] = value),
-              validator: _checkNoEmpty,
-            ),
-            const SizedBox(height: 24.0),
-            const Text('Plaque immatriculation'),
-            TextFormField(
-              keyboardType: TextInputType.text,
-              onChanged: (value) => setState(() => car['plate'] = value),
-              validator: (value) => _checkEmptyOrRegex(value, carPlateRegExp),
-            ),
-            const SizedBox(height: 24.0),
-            const Text('VIN'),
-            TextFormField(
-              keyboardType: TextInputType.text,
-              onChanged: (value) => setState(() => car['vin'] = value),
-              validator: (value) => _checkEmptyOrRegex(value, carVINRegExp),
-            ),
-          ],
-        ),
+              }
+            : null,
+        onStepTapped: (step) {
+          if (step > _currentStep) {
+            if (!(_formKeys[_currentStep].currentState?.validate() ?? false)) {
+              return;
+            }
+          }
+          setState(() => _currentStep = step);
+        },
+        onStepCancel: _currentStep > 0
+            ? () {
+                setState(() => _currentStep--);
+              }
+            : null,
+        steps: [
+          _buildStep(
+            title: 'Info',
+            stepIndex: 0,
+            content: _buildStepInfo(),
+          ),
+          _buildStep(
+            title: 'Technical',
+            stepIndex: 1,
+            content: _buildStepTech(),
+          ),
+          _buildStep(
+            title: 'Images',
+            stepIndex: 2,
+            content: _buildStepImages(),
+          ),
+        ],
       ),
     );
   }

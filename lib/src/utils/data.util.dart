@@ -2,7 +2,7 @@ import '../modules/car/model/car.model.dart';
 
 final carsSavedData = [
   Car(
-    id: 1,
+    uuid: "f8429b63-f9df-43ef-8aa4-18d362340637",
     title: 'Exige 192',
     imagesUrl: [
       'https://img.leboncoin.fr/api/v1/lbcpb1/images/47/f1/ac/47f1acbec77d3216b799899a4a695fc973eb0f9f.jpg?rule=ad-large',
@@ -33,7 +33,7 @@ Voiture très peu utilisée, 33000 Km seulement
     vin: 'SCCPA11125HN81985',
   ),
   Car(
-    id: 2,
+    uuid: "93a572e2-8f57-4b16-9f17-eb925089fa3b",
     title: 'Exige S 220',
     imagesUrl: [
       'https://img.leboncoin.fr/api/v1/lbcpb1/images/19/fb/65/19fb651a931f78ec4514a3f60e2f677dc7a56379.jpg?rule=ad-large',
@@ -96,7 +96,7 @@ Pas d'échange même contre Lotus elise, exige, cup, s1, s2, s3, exige v6, cater
     vin: 'SCCVC11118HN80915',
   ),
   Car(
-    id: 2,
+    uuid: "6ba8df71-1cdb-417a-a45f-46020ab86810",
     title: 'Exige 192',
     imagesUrl: [
       'https://lh3.googleusercontent.com/d/1UCKn_FPWue6KrP8Fx5PSitLAhOjsFlNL',
