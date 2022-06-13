@@ -154,7 +154,7 @@ class _CarAddViewState extends State<CarAddView> {
         (car) => car.uuid == widget.baseCar!.uuid,
       );
       widget.controller.carsSaved[index] = newCar;
-      await widget.controller.updateCarsSaved(widget.controller.carsSaved);
+      await widget.controller.updateCar(newCar);
     } else {
       await widget.controller.addCar(newCar);
     }

@@ -57,28 +57,7 @@ class Car {
     return handDrive == HandDrive.right ? 'RHD' : 'LHD';
   }
 
-  Map<String, dynamic> toJSON() {
-    return {
-      'uuid': uuid,
-      'title': title,
-      'imagesUrl': imagesUrl,
-      'description': description,
-      'kms': kms,
-      'year': year,
-      'month': month,
-      'hp': hp,
-      'price': price,
-      'handDrive': handDrive.name,
-      'isSold': isSold,
-      'isArchive': isArchive,
-      'adUrl': adUrl,
-      'adDate': adDate.toIso8601String(),
-      'plate': plate,
-      'vin': vin,
-    };
-  }
-
-  static Car fromJSON(dynamic data) {
+  factory Car.fromJSON(dynamic data) {
     return Car(
       uuid: data['uuid'],
       title: data['title'],
@@ -100,5 +79,26 @@ class Car {
       plate: data['plate'],
       vin: data['vin'],
     );
+  }
+
+  Map<String, dynamic> toJSON() {
+    return {
+      'uuid': uuid,
+      'title': title,
+      'imagesUrl': imagesUrl,
+      'description': description,
+      'kms': kms,
+      'year': year,
+      'month': month,
+      'hp': hp,
+      'price': price,
+      'handDrive': handDrive.name,
+      'isSold': isSold,
+      'isArchive': isArchive,
+      'adUrl': adUrl,
+      'adDate': adDate.toIso8601String(),
+      'plate': plate,
+      'vin': vin,
+    };
   }
 }

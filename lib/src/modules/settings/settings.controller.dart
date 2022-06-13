@@ -5,23 +5,24 @@ import '../car/model/car.model.dart';
 import 'settings.service.dart';
 
 class SettingsController with ChangeNotifier {
-  SettingsController(this._settingsService);
+  SettingsController(this.settingsService);
 
-  final SettingsService _settingsService;
+  final SettingsService settingsService;
 
   late ThemeMode _themeMode;
   ThemeMode get themeMode => _themeMode;
-
 
   late List<Car> _carsSaved;
   List<Car> get carsSaved => _carsSaved;
 
   Future<void> loadSettings() async {
     // TODO; Remove
-    await _settingsService.updateCarsSaved(carsSavedData);
-  
-    _themeMode = await _settingsService.themeMode();
-    _carsSaved = await _settingsService.carsSaved();
+    // for (var car in carsSavedData) {
+    //   await settingsService.addCar(car);
+    // }
+
+    _themeMode = await settingsService.themeMode();
+    _carsSaved = await settingsService.carsSaved();
 
     notifyListeners();
   }
@@ -29,31 +30,30 @@ class SettingsController with ChangeNotifier {
   Future<void> updateThemeMode(ThemeMode? newThemeMode) async {
     if (newThemeMode == null || newThemeMode == _themeMode) return;
     _themeMode = newThemeMode;
-  
+
     notifyListeners();
-    await _settingsService.updateThemeMode(newThemeMode);
+    await settingsService.updateThemeMode(newThemeMode);
   }
 
-  Future<void> addCar(Car newCar) async {
+  Future<String> addCar(Car newCar) async {
     _carsSaved.add(newCar);
-  
+
     notifyListeners();
-    await _settingsService.updateCarsSaved(_carsSaved);
+    return await settingsService.addCar(newCar);
   }
 
   Future<void> updateCar(Car updatedCar) async {
     final index = _carsSaved.indexWhere((car) => car.uuid == updatedCar.uuid);
     _carsSaved[index] = updatedCar;
-  
+
     notifyListeners();
-    await _settingsService.updateCarsSaved(_carsSaved);
+    await settingsService.updateCar(updatedCar);
   }
 
-  Future<void> updateCarsSaved(List<Car>? newCarsSaved) async {
-    if (newCarsSaved == null) return;
-    _carsSaved = newCarsSaved;
-  
+  Future<void> remove(Car car) async {
+    _carsSaved.remove(car);
+
     notifyListeners();
-    await _settingsService.updateCarsSaved(newCarsSaved);
+    await settingsService.removeCar(car);
   }
 }

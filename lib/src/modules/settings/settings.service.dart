@@ -1,7 +1,6 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../car/model/car.model.dart';
 
@@ -22,19 +21,40 @@ class SettingsService {
     await prefs.setString('theme_mode', themeMode);
   }
 
-  Future<List<Car>> carsSaved() async {
-    final prefs = await SharedPreferences.getInstance();
-    final carsSaved = prefs.getStringList('cars_saved');
-
-    if (carsSaved == null) return [];
-    return carsSaved.map((car) => Car.fromJSON(jsonDecode(car))).toList();
+  CollectionReference<Car> getCarRef() {
+    return FirebaseFirestore.instance.collection('cars').withConverter<Car>(
+          fromFirestore: (snapshot, _) => Car.fromJSON(snapshot.data()!),
+          toFirestore: (car, _) => car.toJSON(),
+        );
   }
 
-  Future<void> updateCarsSaved(List<Car> carsSaved) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(
-      'cars_saved',
-      carsSaved.map((car) => jsonEncode(car.toJSON())).toList(),
-    );
+  Future<List<Car>> carsSaved() async {
+    final data = await getCarRef().get();
+    return data.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<String?> getCarDocumentId(String carUUID)async {
+    final snap = await getCarRef().where('uuid', isEqualTo: carUUID).limit(1).get();
+    if (snap.docs.isEmpty) return null;
+    return snap.docs.first.id;
+  }
+
+  Future<String> addCar(Car car) async {
+    final carAdded = await getCarRef().add(car);
+    return carAdded.id;
+  }
+
+  Future<void> removeCar(Car car) async {
+    final carDocId = await getCarDocumentId(car.uuid);
+    if (carDocId == null) return;
+
+    await getCarRef().doc(carDocId).delete();
+  }
+
+  Future<void> updateCar(Car car) async {
+    final carDocId = await getCarDocumentId(car.uuid);
+    if (carDocId == null) return;
+
+    await getCarRef().doc(carDocId).update(car.toJSON());
   }
 }
