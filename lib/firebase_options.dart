@@ -50,20 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBBT9HTZlDNwMHw38abGFULjetOVLL652A',
-    appId: '1:222460989670:android:880d901625397f5eb0eb27',
+    apiKey: 'AIzaSyCRRfTizk6uZ_bVp0u9scxHAbvsQCWIe7E',
+    appId: '1:222460989670:android:c210cc8288e4e1e6b0eb27',
     messagingSenderId: '222460989670',
     projectId: 'carmanager-d506f',
     storageBucket: 'carmanager-d506f.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyANHRndLukgV0KVD1wOKbAoHhUsCQ27JDo',
-    appId: '1:222460989670:ios:0597cc0264ea3f39b0eb27',
+    apiKey: 'AIzaSyBVONEts1evF8u17zb-qLdCXYpF8Erkb1k',
+    appId: '1:222460989670:ios:6331585376f62659b0eb27',
     messagingSenderId: '222460989670',
     projectId: 'carmanager-d506f',
     storageBucket: 'carmanager-d506f.appspot.com',
-    iosClientId: '222460989670-dsoreipvc1qc9ub9eprhcb5jiv0jjgi4.apps.googleusercontent.com',
-    iosBundleId: 'com.example.carManager',
+    androidClientId: '222460989670-e9e3plkrr8u5f28832esi3rislvae7li.apps.googleusercontent.com',
+    iosClientId: '222460989670-8c6hmaro1ues1vvskuf7u2t5ubtnqftm.apps.googleusercontent.com',
+    iosBundleId: 'fr.pyozer.carManager',
   );
 }
