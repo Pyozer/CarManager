@@ -1,3 +1,4 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/number.extension.dart';
@@ -19,6 +20,7 @@ class Car {
   bool isArchive;
   final String adUrl;
   final DateTime adDate;
+  final LatLng position;
   final String? plate;
   final String? vin;
 
@@ -37,6 +39,7 @@ class Car {
     required this.isArchive,
     required this.adUrl,
     required this.adDate,
+    required this.position,
     this.plate,
     this.vin,
   });
@@ -57,7 +60,7 @@ class Car {
     return handDrive == HandDrive.right ? 'RHD' : 'LHD';
   }
 
-  factory Car.fromJSON(dynamic data) {
+  factory Car.fromJson(dynamic data) {
     return Car(
       uuid: data['uuid'],
       title: data['title'],
@@ -76,12 +79,13 @@ class Car {
       isArchive: data['isArchive'],
       adUrl: data['adUrl'],
       adDate: DateTime.parse(data['adDate']),
+      position: LatLng.fromJson(data['position'])!, // TODO: Not good
       plate: data['plate'],
       vin: data['vin'],
     );
   }
 
-  Map<String, dynamic> toJSON() {
+  Map<String, dynamic> toJson() {
     return {
       'uuid': uuid,
       'title': title,
@@ -97,6 +101,7 @@ class Car {
       'isArchive': isArchive,
       'adUrl': adUrl,
       'adDate': adDate.toIso8601String(),
+      'position': position.toJson(),
       'plate': plate,
       'vin': vin,
     };

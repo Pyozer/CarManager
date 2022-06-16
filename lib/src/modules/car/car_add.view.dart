@@ -71,7 +71,7 @@ class _CarAddViewState extends State<CarAddView> {
   void initState() {
     super.initState();
     if (widget.baseCar != null) {
-      car = jsonDecode(jsonEncode(widget.baseCar!.toJSON()));
+      car = jsonDecode(jsonEncode(widget.baseCar!.toJson()));
     }
     _titleController = TextEditingController(text: car['title']);
     _descController = TextEditingController(text: car['description']);
@@ -147,7 +147,7 @@ class _CarAddViewState extends State<CarAddView> {
 
       car['imagesUrl'] = imagesStorageUrls;
     }
-    final newCar = Car.fromJSON(car);
+    final newCar = Car.fromJson(car);
 
     if (widget.baseCar != null) {
       final index = widget.controller.carsSaved.indexWhere(

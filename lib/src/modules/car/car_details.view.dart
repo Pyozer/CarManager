@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../utils/string.extension.dart';
@@ -10,6 +14,7 @@ import 'model/car.model.dart';
 import 'widget/car_detail_info.widget.dart';
 import 'widget/car_gallery.widget.dart';
 import 'widget/car_sold.widget.dart';
+import 'widget/maps_card.widget.dart';
 
 class CarDetailsViewArguments {
   final String carUUID;
@@ -39,11 +44,26 @@ class CarDetailsView extends StatelessWidget {
     await controller.updateCar(car);
   }
 
+  void _openMap(LatLng latlng) {
+    final position = [latlng.latitude, latlng.longitude].join(',');
+
+    if (Platform.isIOS) {
+      launchUrl(Uri(
+        scheme: 'maps',
+        queryParameters: {'q': position},
+      ));
+    } else {
+      launchUrl(Uri(scheme: 'geo', path: position));
+    }
+  }
+
   Widget _buildContent({
     String? title1,
     String? content1,
+    Widget? footer1,
     String? title2,
     String? content2,
+    Widget? footer2,
   }) {
     if ((title1 != null && content1 != null) ||
         (title2 != null && content2 != null)) {
@@ -60,6 +80,7 @@ class CarDetailsView extends StatelessWidget {
                 child: CarDetailInfo(
                   title: title1,
                   content: content1,
+                  footer: footer1,
                 ),
               ),
             if (title2 != null && content2 != null) const SizedBox(width: 12),
@@ -69,6 +90,7 @@ class CarDetailsView extends StatelessWidget {
                 child: CarDetailInfo(
                   title: title2,
                   content: content2,
+                  footer: footer2,
                 ),
               ),
           ],
@@ -148,6 +170,25 @@ class CarDetailsView extends StatelessWidget {
           _buildContent(
             title1: 'Description',
             content1: car.description,
+          ),
+          _buildContent(
+            title1: 'Location',
+            content1: "13 Route de la Borde,\nSaint-Sulpice-et-Cameyrac",
+            footer1: SizedBox(
+              height: 165,
+              child: GoogleMap(
+                mapType: MapType.normal,
+                myLocationButtonEnabled: false,
+                initialCameraPosition: CameraPosition(
+                  target: car.position,
+                  zoom: 8,
+                ),
+                onTap: (_) => _openMap(car.position),
+                markers: {
+                  Marker(markerId: MarkerId(car.uuid), position: car.position),
+                },
+              ),
+            ),
           ),
           _buildContent(
             title1: 'Ajouté le',

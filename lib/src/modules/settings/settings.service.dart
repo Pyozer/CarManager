@@ -23,8 +23,8 @@ class SettingsService {
 
   CollectionReference<Car> getCarRef() {
     return FirebaseFirestore.instance.collection('cars').withConverter<Car>(
-          fromFirestore: (snapshot, _) => Car.fromJSON(snapshot.data()!),
-          toFirestore: (car, _) => car.toJSON(),
+          fromFirestore: (snapshot, _) => Car.fromJson(snapshot.data()!),
+          toFirestore: (car, _) => car.toJson(),
         );
   }
 
@@ -55,6 +55,6 @@ class SettingsService {
     final carDocId = await getCarDocumentId(car.uuid);
     if (carDocId == null) return;
 
-    await getCarRef().doc(carDocId).update(car.toJSON());
+    await getCarRef().doc(carDocId).update(car.toJson());
   }
 }

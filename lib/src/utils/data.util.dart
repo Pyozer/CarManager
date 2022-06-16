@@ -1,3 +1,5 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import '../modules/car/model/car.model.dart';
 
 final carsSavedData = [
@@ -30,6 +32,7 @@ Voiture très peu utilisée, 33000 Km seulement
     isArchive: false,
     adUrl: 'https://www.leboncoin.fr/voitures/2169712683.htm',
     adDate: DateTime.parse('2022-05-31 10:42:00'),
+    position: const LatLng(47.878550, 0.129790),
     plate: '3807-YA-72',
     vin: 'SCCPA11125HN81985',
   ),
@@ -94,6 +97,7 @@ Pas d'échange même contre Lotus elise, exige, cup, s1, s2, s3, exige v6, cater
     isArchive: false,
     adUrl: 'https://www.leboncoin.fr/voitures/2162588834.htm',
     adDate: DateTime.parse('2022-05-16 12:10:00'),
+    position: const LatLng(44.897556, -0.378072),
     plate: 'FC-835-XY',
     vin: 'SCCVC11118HN80915',
   ),
@@ -135,6 +139,7 @@ Pour plus d'informations
     isArchive: false,
     adUrl: 'https://www.leboncoin.fr/voitures/2159587412.htm',
     adDate: DateTime.parse('2022-05-26 12:10:00'),
+    position: const LatLng(48.225832, 4.132117),
     plate: 'BG-037-EH',
     vin: 'SCCPA11185HN85362',
   )
