@@ -1,10 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.car_manager">
-
+    package="fr.pyozer.car_manager">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-   <application
+    <application
         android:label="car_manager"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
@@ -34,8 +33,5 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
-        <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCRRfTizk6uZ_bVp0u9scxHAbvsQCWIe7E"/>
     </application>
 </manifest>

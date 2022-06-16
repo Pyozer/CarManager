@@ -3,12 +3,12 @@ extension ListExtension<T> on List<T> {
     final iterator = this.iterator;
     if (!iterator.moveNext()) return [];
 
-    final _l = [iterator.current];
+    final list = [iterator.current];
     while (iterator.moveNext()) {
-      _l
+      list
         ..add(separator)
         ..add(iterator.current);
     }
-    return _l;
+    return list;
   }
 }

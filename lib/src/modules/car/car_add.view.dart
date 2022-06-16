@@ -129,6 +129,7 @@ class _CarAddViewState extends State<CarAddView> {
           return saveToStorage(imageUrl, imageStoragePath, index);
         }),
       );
+      if (!mounted) return;
 
       if (imagesStorageUrls.any((img) => img == null)) {
         setState(() => _isLoading = false);
@@ -158,6 +159,7 @@ class _CarAddViewState extends State<CarAddView> {
     } else {
       await widget.controller.addCar(newCar);
     }
+    if (!mounted) return;
     Navigator.of(context).pop();
   }
 
@@ -268,7 +270,7 @@ class _CarAddViewState extends State<CarAddView> {
             firstDate: DateTime.now().subtract(const Duration(days: 365)),
             lastDate: DateTime.now(),
           );
-          if (date == null) return;
+          if (date == null || !mounted) return;
 
           _adDateController.text = DateFormat.yMMMMEEEEd(
             Localizations.localeOf(context).languageCode,
@@ -425,7 +427,7 @@ class _CarAddViewState extends State<CarAddView> {
                 context: context,
                 builder: (_) => const AddImageDialog(),
               );
-              if (imageUrl == null) return;
+              if (imageUrl == null || !mounted) return;
 
               if (Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false) {
                 setState(() => _imagesUrl.add(imageUrl));

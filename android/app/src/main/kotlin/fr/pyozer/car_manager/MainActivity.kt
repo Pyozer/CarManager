@@ -1,4 +1,4 @@
-package com.example.car_manager
+package fr.pyozer.car_manager
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -14,7 +14,6 @@ import 'model/car.model.dart';
 import 'widget/car_detail_info.widget.dart';
 import 'widget/car_gallery.widget.dart';
 import 'widget/car_sold.widget.dart';
-import 'widget/maps_card.widget.dart';
 
 class CarDetailsViewArguments {
   final String carUUID;

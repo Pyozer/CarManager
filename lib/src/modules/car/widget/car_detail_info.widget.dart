@@ -21,13 +21,13 @@ class CarDetailInfo extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: borderRadius),
       child: InkWell(
         onLongPress: () async {
-          await Clipboard.setData(ClipboardData(text: content));
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
               content: Text('Copié !'),
               duration: Duration(seconds: 1),
             ),
           );
+          await Clipboard.setData(ClipboardData(text: content));
         },
         borderRadius: borderRadius,
         child: ClipRRect(
