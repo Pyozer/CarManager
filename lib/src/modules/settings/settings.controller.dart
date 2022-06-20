@@ -22,7 +22,7 @@ class SettingsController with ChangeNotifier {
     // }
 
     _themeMode = await settingsService.themeMode();
-    _carsSaved = await settingsService.carsSaved();
+    _carsSaved = await settingsService.getCars();
 
     notifyListeners();
   }
@@ -35,11 +35,11 @@ class SettingsController with ChangeNotifier {
     await settingsService.updateThemeMode(newThemeMode);
   }
 
-  Future<String> addCar(Car newCar) async {
+  Future<String> addCar(Car newCar) {
     _carsSaved.add(newCar);
 
     notifyListeners();
-    return await settingsService.addCar(newCar);
+    return settingsService.addCar(newCar);
   }
 
   Future<void> updateCar(Car updatedCar) async {
@@ -48,12 +48,5 @@ class SettingsController with ChangeNotifier {
 
     notifyListeners();
     await settingsService.updateCar(updatedCar);
-  }
-
-  Future<void> remove(Car car) async {
-    _carsSaved.remove(car);
-
-    notifyListeners();
-    await settingsService.removeCar(car);
   }
 }

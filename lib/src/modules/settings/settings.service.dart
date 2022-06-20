@@ -21,40 +21,34 @@ class SettingsService {
     await prefs.setString('theme_mode', themeMode);
   }
 
-  CollectionReference<Car> getCarRef() {
+  CollectionReference<Car> _getCarRef() {
     return FirebaseFirestore.instance.collection('cars').withConverter<Car>(
           fromFirestore: (snapshot, _) => Car.fromJson(snapshot.data()!),
           toFirestore: (car, _) => car.toJson(),
         );
   }
 
-  Future<List<Car>> carsSaved() async {
-    final data = await getCarRef().get();
-    return data.docs.map((doc) => doc.data()).toList();
-  }
-
-  Future<String?> getCarDocumentId(String carUUID)async {
-    final snap = await getCarRef().where('uuid', isEqualTo: carUUID).limit(1).get();
+  Future<String?> _getCarDocumentId(String carUUID) async {
+    final snap =
+        await _getCarRef().where('uuid', isEqualTo: carUUID).limit(1).get();
     if (snap.docs.isEmpty) return null;
     return snap.docs.first.id;
   }
 
+  Future<List<Car>> getCars() async {
+    final data = await _getCarRef().get();
+    return data.docs.map((doc) => doc.data()).toList();
+  }
+
   Future<String> addCar(Car car) async {
-    final carAdded = await getCarRef().add(car);
+    final carAdded = await _getCarRef().add(car);
     return carAdded.id;
   }
 
-  Future<void> removeCar(Car car) async {
-    final carDocId = await getCarDocumentId(car.uuid);
-    if (carDocId == null) return;
-
-    await getCarRef().doc(carDocId).delete();
-  }
-
   Future<void> updateCar(Car car) async {
-    final carDocId = await getCarDocumentId(car.uuid);
+    final carDocId = await _getCarDocumentId(car.uuid);
     if (carDocId == null) return;
 
-    await getCarRef().doc(carDocId).update(car.toJson());
+    await _getCarRef().doc(carDocId).update(car.toJson());
   }
 }

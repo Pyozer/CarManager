@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:uuid/uuid.dart';
@@ -16,7 +20,6 @@ import '../../utils/validators.utils.dart';
 import '../../widgets/stepper_controls.widget.dart';
 import '../../widgets/add_image_square.widget.dart';
 import '../settings/settings.controller.dart';
-import 'widget/add_image_dialog.widget.dart';
 
 class CarAddViewArguments {
   final Car? baseCar;
@@ -57,14 +60,19 @@ class _CarAddViewState extends State<CarAddView> {
 
   late final Validator _validator;
 
+  final ImagePicker _picker = ImagePicker();
+
   int _currentStep = 0;
   bool _isLoading = false;
 
   List<String> _imagesUrl = [];
+
   Map<String, dynamic> car = {
     'uuid': const Uuid().v4(),
     'handDrive': HandDrive.left.name,
     'isSold': false,
+    'isArchive': false,
+    'position': const LatLng(41, -0.7).toJson() // TODO: TEMP
   };
 
   @override
@@ -109,58 +117,83 @@ class _CarAddViewState extends State<CarAddView> {
     super.dispose();
   }
 
+  String get imageStoragePath {
+    return 'images/${car['uuid']}';
+  }
+
   Future<void> _addCar() async {
     setState(() => _isLoading = true);
+    try {
+      if (widget.baseCar == null ||
+          !listEquals(widget.baseCar!.imagesUrl, _imagesUrl)) {
+        // Save current images
+        final imagesSaved = await Future.wait(
+          _imagesUrl.map((imageUrl) => networkImageData(imageUrl)),
+        );
+        // Delete stored images of car
+        await deleteAllFromStorage(imageStoragePath);
 
-    if (widget.baseCar == null ||
-        !listEquals(widget.baseCar!.imagesUrl, _imagesUrl)) {
-      // Download all images
-      final imagesData = await Future.wait(
-        _imagesUrl.mapIndexed((index, imageUrl) => networkImageData(imageUrl)),
-      );
+        // Save images
+        final imagesUrl = await Future.wait(
+          imagesSaved.mapIndexed((index, imageData) {
+            return saveToStorage(imageData, imageStoragePath, index);
+          }),
+        );
+        _imagesUrl = imagesUrl;
+        car['imagesUrl'] = imagesUrl.toList();
+      }
 
-      // Delete current saved images to avoid duplicates in storage
-      final imageStoragePath = 'images/${car['uuid']}';
-      await deleteAllFromStorage(imageStoragePath);
+      final newCar = Car.fromJson(car);
 
-      // Upload images previously downloaded
-      final imagesStorageUrls = await Future.wait(
-        imagesData.whereNotNull().mapIndexed((index, imageUrl) {
-          return saveToStorage(imageUrl, imageStoragePath, index);
-        }),
-      );
+      if (widget.baseCar != null) {
+        await widget.controller.updateCar(newCar);
+      } else {
+        await widget.controller.addCar(newCar);
+      }
       if (!mounted) return;
 
-      if (imagesStorageUrls.any((img) => img == null)) {
-        setState(() => _isLoading = false);
+      Navigator.of(context).pop();
+    } catch (e) {
+      setState(() => _isLoading = false);
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            e.toString(),
+            style: const TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  Future<void> _uploadImages(List<XFile> images) async {
+    try {
+      // Upload images
+      for (var index = 0; index < images.length; index++) {
+        final imageUrl = await saveFileToStorage(
+            File(images[index].path), imageStoragePath, index);
+        if (!mounted) return;
+        setState(() => _imagesUrl.add(imageUrl));
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text(
-              'Error during image saving to storage !',
-              style: TextStyle(color: Colors.white),
+            content: Text(
+              e.toString(),
+              style: const TextStyle(color: Colors.white),
             ),
             backgroundColor: Theme.of(context).colorScheme.error,
             duration: const Duration(seconds: 2),
           ),
         );
-        return;
       }
-
-      car['imagesUrl'] = imagesStorageUrls;
     }
-    final newCar = Car.fromJson(car);
-
-    if (widget.baseCar != null) {
-      final index = widget.controller.carsSaved.indexWhere(
-        (car) => car.uuid == widget.baseCar!.uuid,
-      );
-      widget.controller.carsSaved[index] = newCar;
-      await widget.controller.updateCar(newCar);
-    } else {
-      await widget.controller.addCar(newCar);
-    }
-    if (!mounted) return;
-    Navigator.of(context).pop();
   }
 
   void _updateCarValue(String fieldKey, dynamic value) {
@@ -415,34 +448,23 @@ class _CarAddViewState extends State<CarAddView> {
         runSpacing: 12,
         onReorder: (int oldIndex, int newIndex) {
           setState(() {
-            String imageUrl = _imagesUrl.removeAt(oldIndex - 1);
-            _imagesUrl.insert(newIndex - 1, imageUrl);
+            final image = _imagesUrl.removeAt(oldIndex - 1);
+            _imagesUrl.insert(newIndex - 1, image);
           });
         },
         children: List.generate(_imagesUrl.length + 1, (index) {
           return AddImageSquare(
             imageUrl: index > 0 ? _imagesUrl[index - 1] : null,
             onAdd: () async {
-              final imageUrl = await showDialog(
-                context: context,
-                builder: (_) => const AddImageDialog(),
-              );
-              if (imageUrl == null || !mounted) return;
+              final List<XFile>? images = await _picker.pickMultiImage();
+              if ((images?.isEmpty ?? true) || !mounted) return;
 
-              if (Uri.tryParse(imageUrl)?.hasAbsolutePath ?? false) {
-                setState(() => _imagesUrl.add(imageUrl));
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text(
-                      'Invalid image url !',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    backgroundColor: Theme.of(context).colorScheme.error,
-                    duration: const Duration(seconds: 2),
-                  ),
-                );
-              }
+              setState(() => _isLoading = true);
+
+              await _uploadImages(images!);
+
+              if (!mounted) return;
+              setState(() => _isLoading = false);
             },
             onImageTap: () {
               setState(() => _imagesUrl.removeAt(index - 1));

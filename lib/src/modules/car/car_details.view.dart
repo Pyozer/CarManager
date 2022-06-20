@@ -178,6 +178,10 @@ class CarDetailsView extends StatelessWidget {
               child: GoogleMap(
                 mapType: MapType.normal,
                 myLocationButtonEnabled: false,
+                zoomControlsEnabled: false,
+                scrollGesturesEnabled: false,
+                rotateGesturesEnabled: false,
+                zoomGesturesEnabled: false,
                 initialCameraPosition: CameraPosition(
                   target: car.position,
                   zoom: 8,
