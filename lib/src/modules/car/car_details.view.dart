@@ -6,7 +6,7 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
-import '../../utils/string.extension.dart';
+import '../../utils/extensions/string.extension.dart';
 import '../../widgets/return_button.widget.dart';
 import '../settings/settings.controller.dart';
 import 'car_add.view.dart';
@@ -118,32 +118,6 @@ class CarDetailsView extends StatelessWidget {
             ],
           ),
           if (car.isSold) const CarSold(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(13.0, 13.0, 13.0, 2.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.edit_outlined),
-                    label: const Text('Edit'),
-                    onPressed: () => _onEdit(context, car),
-                  ),
-                ),
-                const SizedBox(width: 18.0),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: car.isArchive
-                        ? const Icon(Icons.restore)
-                        : const Icon(Icons.archive_outlined),
-                    label: car.isArchive
-                        ? const Text('Restore')
-                        : const Text('Archive'),
-                    onPressed: () => _onArchive(car),
-                  ),
-                ),
-              ],
-            ),
-          ),
           _buildContent(
             title1: 'Titre',
             content1: car.title,
@@ -175,30 +149,71 @@ class CarDetailsView extends StatelessWidget {
             content1: "13 Route de la Borde,\nSaint-Sulpice-et-Cameyrac",
             footer1: SizedBox(
               height: 165,
-              child: GoogleMap(
-                mapType: MapType.normal,
-                myLocationButtonEnabled: false,
-                zoomControlsEnabled: false,
-                scrollGesturesEnabled: false,
-                rotateGesturesEnabled: false,
-                zoomGesturesEnabled: false,
-                initialCameraPosition: CameraPosition(
-                  target: car.position,
-                  zoom: 8,
+              child: IgnorePointer(
+                child: GoogleMap(
+                  mapType: MapType.normal,
+                  myLocationButtonEnabled: false,
+                  zoomControlsEnabled: false,
+                  initialCameraPosition: CameraPosition(
+                    target: car.position,
+                    zoom: 8,
+                  ),
+                  onTap: (_) => _openMap(car.position),
+                  markers: {
+                    Marker(
+                      markerId: MarkerId(car.uuid),
+                      position: car.position,
+                    ),
+                  },
                 ),
-                onTap: (_) => _openMap(car.position),
-                markers: {
-                  Marker(markerId: MarkerId(car.uuid), position: car.position),
-                },
               ),
             ),
           ),
           _buildContent(
             title1: 'Ajouté le',
             content1: DateFormat.yMMMMEEEEd(
-                    Localizations.localeOf(context).languageCode)
-                .format(car.adDate)
-                .capitalize(),
+              Localizations.localeOf(context).languageCode,
+            ).format(car.adDate).capitalize(),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(13.0, 13.0, 13.0, 2.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _onEdit(context, car),
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.edit_outlined),
+                    label: const Text('Edit'),
+                  ),
+                ),
+                const SizedBox(width: 18.0),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _onArchive(car),
+                    style: ButtonStyle(
+                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25.0),
+                        ),
+                      ),
+                    ),
+                    icon: car.isArchive
+                        ? const Icon(Icons.restore)
+                        : const Icon(Icons.archive_outlined),
+                    label: car.isArchive
+                        ? const Text('Restore')
+                        : const Text('Archive'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

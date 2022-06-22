@@ -36,7 +36,7 @@ class SettingsService {
   }
 
   Future<List<Car>> getCars() async {
-    final data = await _getCarRef().get();
+    final data = await _getCarRef().orderBy('adDate', descending: true).get();
     return data.docs.map((doc) => doc.data()).toList();
   }
 

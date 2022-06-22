@@ -15,6 +15,10 @@ class CarListView extends StatelessWidget {
 
   static const routeName = '/';
 
+  Future<void> _onRefresh() {
+    return controller.loadCars(notify: true);
+  }
+
   @override
   Widget build(BuildContext context) {
     final cars = controller.carsSaved.where((car) => !car.isArchive).toList();
@@ -61,10 +65,13 @@ class CarListView extends StatelessWidget {
         label: const Text('Filters'),
         heroTag: 'Filters',
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.only(top: 16, bottom: 82),
-        itemCount: cars.length,
-        itemBuilder: (_, int index) => CarCard(car: cars[index]),
+      body: RefreshIndicator(
+        onRefresh: _onRefresh,
+        child: ListView.builder(
+          padding: const EdgeInsets.only(top: 16, bottom: 82),
+          itemCount: cars.length,
+          itemBuilder: (_, int index) => CarCard(car: cars[index]),
+        ),
       ),
     );
   }

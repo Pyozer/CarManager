@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../utils/data.util.dart';
 import '../car/model/car.model.dart';
 import 'settings.service.dart';
 
@@ -15,15 +14,19 @@ class SettingsController with ChangeNotifier {
   late List<Car> _carsSaved;
   List<Car> get carsSaved => _carsSaved;
 
-  Future<void> loadSettings() async {
-    // TODO; Remove
-    // for (var car in carsSavedData) {
-    //   await settingsService.addCar(car);
-    // }
-
+  Future<void> loadTheme({bool notify = false}) async {
     _themeMode = await settingsService.themeMode();
-    _carsSaved = await settingsService.getCars();
+    if (notify) notifyListeners();
+  }
 
+  Future<void> loadCars({bool notify = false}) async {
+    _carsSaved = await settingsService.getCars();
+    if (notify) notifyListeners();
+  }
+
+  Future<void> loadSettings() async {
+    await loadTheme();
+    await loadCars();
     notifyListeners();
   }
 

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
@@ -52,11 +53,12 @@ class _CarGalleryViewState extends State<CarGalleryView> {
             pageController: _pageController,
             scrollPhysics: const BouncingScrollPhysics(),
             enableRotation: true,
+            allowImplicitScrolling: true,
             onPageChanged: (int page) => setState(() => _currentPage = page),
             itemCount: widget.imagesUrl.length,
             builder: (_, int index) {
               return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(widget.imagesUrl[index]),
+                imageProvider: CachedNetworkImageProvider(widget.imagesUrl[index]),
                 initialScale: PhotoViewComputedScale.contained,
                 heroAttributes: PhotoViewHeroAttributes(
                   tag: widget.imagesUrl[index],

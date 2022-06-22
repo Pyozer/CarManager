@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class ImageNetworkLoader extends StatelessWidget {
@@ -21,28 +22,24 @@ class ImageNetworkLoader extends StatelessWidget {
     );
   }
 
-  Widget _buildProgress(ImageChunkEvent progress) {
+  Widget _buildProgress(DownloadProgress progress) {
     return SizedBox(
       height: height,
       child: Center(
-        child: CircularProgressIndicator(
-          value: progress.expectedTotalBytes != null
-              ? progress.cumulativeBytesLoaded / progress.expectedTotalBytes!
-              : null,
-        ),
+        child: CircularProgressIndicator(value: progress.progress),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Image.network(
-      imageUrl,
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
       fit: BoxFit.cover,
       height: height,
-      errorBuilder: (_, __, ___) => _buildError(),
-      loadingBuilder: (_, image, progress) {
-        if (progress == null) return image;
+      errorWidget: (_, __, ___) => _buildError(),
+      fadeOutDuration: const Duration(milliseconds: 200),
+      progressIndicatorBuilder: (_, __, progress) {
         return _buildProgress(progress);
       },
     );

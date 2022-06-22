@@ -1,7 +1,7 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
-import '../../../utils/number.extension.dart';
+import '../../../utils/extensions/number.extension.dart';
 
 enum HandDrive { left, right }
 

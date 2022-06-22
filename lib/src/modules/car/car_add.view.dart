@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,12 +13,18 @@ import 'package:uuid/uuid.dart';
 import '../../modules/car/model/car.model.dart';
 import '../../utils/image.util.dart';
 import '../../utils/regexp.util.dart';
-import '../../utils/list.extension.dart';
-import '../../utils/string.extension.dart';
+import '../../utils/extensions/list.extension.dart';
+import '../../utils/extensions/number.extension.dart';
+import '../../utils/extensions/string.extension.dart';
 import '../../utils/validators.utils.dart';
 import '../../widgets/stepper_controls.widget.dart';
 import '../../widgets/add_image_square.widget.dart';
 import '../settings/settings.controller.dart';
+import '../../models/image_data.model.dart';
+
+const kCardSize = 100.0;
+const kCardSpacing = 12.0;
+const kPadding = 24.0 * 2;
 
 class CarAddViewArguments {
   final Car? baseCar;
@@ -58,14 +63,14 @@ class _CarAddViewState extends State<CarAddView> {
   late final TextEditingController _plateController;
   late final TextEditingController _vinController;
 
-  late final Validator _validator;
+  Validator? _validator;
 
   final ImagePicker _picker = ImagePicker();
 
   int _currentStep = 0;
   bool _isLoading = false;
 
-  List<String> _imagesUrl = [];
+  List<ImageData> _imagesData = [];
 
   Map<String, dynamic> car = {
     'uuid': const Uuid().v4(),
@@ -89,16 +94,13 @@ class _CarAddViewState extends State<CarAddView> {
     _hpController = TextEditingController(text: car['hp']?.toString());
     _priceController = TextEditingController(text: car['price']?.toString());
     _adUrlController = TextEditingController(text: car['adUrl']);
-    _adDateController = TextEditingController(text: car['adDate']);
+    _adDateController = TextEditingController(
+      text: _formatDate(DateTime.tryParse(car['adDate'])),
+    );
     _plateController = TextEditingController(text: car['plate']);
     _vinController = TextEditingController(text: car['vin']);
-    _imagesUrl = List<String>.from(car['imagesUrl'] ?? []);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _validator = Validator(context);
+    _imagesData = List<String>.from(car['imagesUrl'] ?? [])
+        .mapList((url) => ImageURL(url));
   }
 
   @override
@@ -117,98 +119,38 @@ class _CarAddViewState extends State<CarAddView> {
     super.dispose();
   }
 
+  Validator get validator {
+    _validator ??= Validator(context);
+    return _validator!;
+  }
+
   String get imageStoragePath {
     return 'images/${car['uuid']}';
   }
 
-  Future<void> _addCar() async {
-    setState(() => _isLoading = true);
-    try {
-      if (widget.baseCar == null ||
-          !listEquals(widget.baseCar!.imagesUrl, _imagesUrl)) {
-        // Save current images
-        final imagesSaved = await Future.wait(
-          _imagesUrl.map((imageUrl) => networkImageData(imageUrl)),
-        );
-        // Delete stored images of car
-        await deleteAllFromStorage(imageStoragePath);
+  bool get isImagesHasChanged {
+    if (widget.baseCar == null) return true;
 
-        // Save images
-        final imagesUrl = await Future.wait(
-          imagesSaved.mapIndexed((index, imageData) {
-            return saveToStorage(imageData, imageStoragePath, index);
-          }),
-        );
-        _imagesUrl = imagesUrl;
-        car['imagesUrl'] = imagesUrl.toList();
-      }
-
-      final newCar = Car.fromJson(car);
-
-      if (widget.baseCar != null) {
-        await widget.controller.updateCar(newCar);
-      } else {
-        await widget.controller.addCar(newCar);
-      }
-      if (!mounted) return;
-
-      Navigator.of(context).pop();
-    } catch (e) {
-      setState(() => _isLoading = false);
-
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            e.toString(),
-            style: const TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-          duration: const Duration(seconds: 2),
-        ),
-      );
+    final imagesUrls = _imagesData.whereType<ImageURL>().mapList((e) => e.data);
+    if (!listEquals(widget.baseCar!.imagesUrl, imagesUrls)) {
+      return true;
     }
-  }
-
-  Future<void> _uploadImages(List<XFile> images) async {
-    try {
-      // Upload images
-      for (var index = 0; index < images.length; index++) {
-        final imageUrl = await saveFileToStorage(
-            File(images[index].path), imageStoragePath, index);
-        if (!mounted) return;
-        setState(() => _imagesUrl.add(imageUrl));
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              e.toString(),
-              style: const TextStyle(color: Colors.white),
-            ),
-            backgroundColor: Theme.of(context).colorScheme.error,
-            duration: const Duration(seconds: 2),
-          ),
-        );
-      }
+    if (widget.baseCar!.imagesUrl.length != _imagesData.length) {
+      return true;
     }
+    return false;
   }
 
-  void _updateCarValue(String fieldKey, dynamic value) {
-    setState(() => car[fieldKey] = value);
-  }
-
-  Widget _buildLoader() {
-    return const Padding(
-      padding: EdgeInsets.only(right: 8),
-      child: SizedBox.square(
-        dimension: 17,
-        child: CircularProgressIndicator(
-          color: Colors.white,
-          strokeWidth: 2,
+  void _displayError(Object error) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          error.toString(),
+          style: const TextStyle(color: Colors.white),
         ),
+        backgroundColor: Theme.of(context).colorScheme.error,
+        duration: const Duration(seconds: 2),
       ),
     );
   }
@@ -218,6 +160,110 @@ class _CarAddViewState extends State<CarAddView> {
       return 'A gauche';
     }
     return 'A droite';
+  }
+
+  String _formatDate(DateTime? date) {
+    if (date == null) return '';
+
+    return DateFormat.yMMMMEEEEd(Localizations.localeOf(context).languageCode)
+        .format(date)
+        .capitalize();
+  }
+
+  Future<void> _addCar() async {
+    setState(() => _isLoading = true);
+    try {
+      if (isImagesHasChanged) {
+        // Save current images
+        final images = await Future.wait(_imagesData.map((imageData) {
+          if (imageData is ImageURL) {
+            return networkImageData(imageData.data);
+          }
+          return (imageData as ImageFile).data.readAsBytes();
+        }));
+
+        // Delete current stored images of car
+        await deleteAllFromStorage(imageStoragePath);
+
+        // Save images
+        final imagesUrl = await Future.wait(images.mapIndexed(
+          (index, data) => saveToStorage(data, imageStoragePath, index),
+        ));
+        car['imagesUrl'] = imagesUrl;
+      }
+      final newCar = Car.fromJson(car);
+
+      if (widget.baseCar != null) {
+        await widget.controller.updateCar(newCar);
+      } else {
+        await widget.controller.addCar(newCar);
+        await widget.controller.loadCars(notify: true);
+      }
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+      _displayError(e);
+    }
+  }
+
+  Future<void> _onAddImage() async {
+    final List<XFile>? images = await _picker.pickMultiImage();
+    if ((images?.isEmpty ?? true) || !mounted) return;
+
+    setState(() {
+      _imagesData.addAll(images!.map((file) => ImageFile(file)));
+    });
+  }
+
+  void _updateCarValue(String fieldKey, dynamic value) {
+    setState(() => car[fieldKey] = value);
+  }
+
+  void _onStepContinue() {
+    if (_formKeys[_currentStep].currentState?.validate() ?? false) {
+      setState(() => _currentStep++);
+    }
+  }
+
+  void _onStepTapped(step) {
+    if (step > _currentStep) {
+      if (!(_formKeys[_currentStep].currentState?.validate() ?? false)) {
+        return;
+      }
+    }
+    setState(() => _currentStep = step);
+  }
+
+  void _onStepCancel() => setState(() => _currentStep--);
+
+  Future<void> _onDateFieldTap() async {
+    final date = await showDatePicker(
+      context: context,
+      initialDate: car['adDate'] != null
+          ? DateTime.parse(car['adDate'])
+          : DateTime.now(),
+      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      lastDate: DateTime.now(),
+    );
+    if (date == null || !mounted) return;
+
+    _adDateController.text = _formatDate(date);
+    _updateCarValue('adDate', date.toIso8601String());
+  }
+
+  Widget _buildLoader() {
+    return const Padding(
+      padding: EdgeInsets.only(right: 8.0),
+      child: SizedBox.square(
+        dimension: 17.0,
+        child: CircularProgressIndicator(
+          color: Colors.white,
+          strokeWidth: 2.0,
+        ),
+      ),
+    );
   }
 
   InputDecoration inputDeco({String? labelText}) {
@@ -254,7 +300,7 @@ class _CarAddViewState extends State<CarAddView> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         decoration: inputDeco(labelText: 'Titre *'),
         onChanged: (value) => _updateCarValue('title', value),
-        validator: _validator.noEmpty,
+        validator: validator.noEmpty,
       ),
       TextFormField(
         controller: _descController,
@@ -263,7 +309,7 @@ class _CarAddViewState extends State<CarAddView> {
         maxLines: 15,
         decoration: inputDeco(labelText: 'Description *'),
         onChanged: (value) => _updateCarValue('description', value),
-        validator: _validator.noEmpty,
+        validator: validator.noEmpty,
       ),
       TextFormField(
         controller: _priceController,
@@ -276,7 +322,7 @@ class _CarAddViewState extends State<CarAddView> {
           suffixIcon: const Icon(Icons.euro),
         ),
         onChanged: (value) => _updateCarValue('price', int.tryParse(value)),
-        validator: (value) => _validator.inRange(value, 1),
+        validator: (value) => validator.inRange(value, 1),
       ),
       TextFormField(
         controller: _adUrlController,
@@ -286,7 +332,7 @@ class _CarAddViewState extends State<CarAddView> {
           suffixIcon: const Icon(Icons.link),
         ),
         onChanged: (value) => _updateCarValue('adUrl', value),
-        validator: _validator.noEmpty,
+        validator: validator.noEmpty,
       ),
       TextFormField(
         controller: _adDateController,
@@ -294,23 +340,8 @@ class _CarAddViewState extends State<CarAddView> {
         keyboardType: TextInputType.url,
         decoration: inputDeco(labelText: 'Date ajout de l\'annonce *'),
         readOnly: true,
-        onTap: () async {
-          final date = await showDatePicker(
-            context: context,
-            initialDate: car['adDate'] != null
-                ? DateTime.parse(car['adDate'])
-                : DateTime.now(),
-            firstDate: DateTime.now().subtract(const Duration(days: 365)),
-            lastDate: DateTime.now(),
-          );
-          if (date == null || !mounted) return;
-
-          _adDateController.text = DateFormat.yMMMMEEEEd(
-            Localizations.localeOf(context).languageCode,
-          ).format(date).capitalize();
-          _updateCarValue('adDate', date.toIso8601String());
-        },
-        validator: _validator.noEmpty,
+        onTap: _onDateFieldTap,
+        validator: validator.noEmpty,
       ),
       Column(
         mainAxisSize: MainAxisSize.min,
@@ -319,7 +350,7 @@ class _CarAddViewState extends State<CarAddView> {
           const Text('Statut'),
           Wrap(
             spacing: 16,
-            children: [false, true].map((isSold) {
+            children: [false, true].mapList((isSold) {
               return ChoiceChip(
                 label: Text(isSold ? 'Vendu' : 'A vendre'),
                 labelStyle: isSold == car['isSold']
@@ -330,11 +361,11 @@ class _CarAddViewState extends State<CarAddView> {
                 selected: isSold == car['isSold'],
                 onSelected: (_) => _updateCarValue('isSold', isSold),
               );
-            }).toList(),
+            }),
           ),
         ],
       ),
-    ].superJoin(const SizedBox(height: 24));
+    ].superJoin(const SizedBox(height: 24.0));
   }
 
   List<Widget> _buildStepTech() {
@@ -352,7 +383,7 @@ class _CarAddViewState extends State<CarAddView> {
           suffixText: 'KM',
         ),
         onChanged: (value) => _updateCarValue('kms', int.tryParse(value)),
-        validator: (value) => _validator.inRange(value, 1),
+        validator: (value) => validator.inRange(value, 1),
       ),
       IntrinsicHeight(
         child: Row(
@@ -366,7 +397,7 @@ class _CarAddViewState extends State<CarAddView> {
                 decoration: inputDeco(labelText: 'Mois *'),
                 onChanged: (value) =>
                     _updateCarValue('month', int.tryParse(value)),
-                validator: (value) => _validator.inRange(value, 1, 12),
+                validator: (value) => validator.inRange(value, 1, 12),
               ),
             ),
             const SizedBox(width: 24),
@@ -379,7 +410,7 @@ class _CarAddViewState extends State<CarAddView> {
                 onChanged: (value) =>
                     _updateCarValue('year', int.tryParse(value)),
                 validator: (value) =>
-                    _validator.inRange(value, 1950, DateTime.now().year + 1),
+                    validator.inRange(value, 1950, DateTime.now().year + 1),
               ),
             ),
           ],
@@ -393,7 +424,7 @@ class _CarAddViewState extends State<CarAddView> {
           suffixText: 'HP',
         ),
         onChanged: (value) => _updateCarValue('hp', int.tryParse(value)),
-        validator: (value) => _validator.inRange(value, 1, 1000),
+        validator: (value) => validator.inRange(value, 1, 1000),
       ),
       Column(
         mainAxisSize: MainAxisSize.min,
@@ -402,7 +433,7 @@ class _CarAddViewState extends State<CarAddView> {
           const Text('Conduite'),
           Wrap(
             spacing: 16,
-            children: HandDrive.values.map((handDrive) {
+            children: HandDrive.values.mapList((handDrive) {
               return ChoiceChip(
                 label: Text(_displayHandDrive(handDrive)),
                 labelStyle: handDrive.name == car['handDrive']
@@ -418,7 +449,7 @@ class _CarAddViewState extends State<CarAddView> {
                   );
                 },
               );
-            }).toList(),
+            }),
           ),
         ],
       ),
@@ -428,7 +459,7 @@ class _CarAddViewState extends State<CarAddView> {
         keyboardType: TextInputType.text,
         decoration: inputDeco(labelText: 'Plaque immatriculation'),
         onChanged: (value) => _updateCarValue('plate', value),
-        validator: (value) => _validator.emptyOrRegex(value, carPlateRegExp),
+        validator: (value) => validator.emptyOrRegex(value, carPlateRegExp),
       ),
       TextFormField(
         controller: _vinController,
@@ -436,43 +467,45 @@ class _CarAddViewState extends State<CarAddView> {
         keyboardType: TextInputType.text,
         decoration: inputDeco(labelText: 'VIN'),
         onChanged: (value) => _updateCarValue('vin', value),
-        validator: (value) => _validator.emptyOrRegex(value, carVINRegExp),
+        validator: (value) => validator.emptyOrRegex(value, carVINRegExp),
       ),
-    ].superJoin(const SizedBox(height: 24));
+    ].superJoin(const SizedBox(height: 24.0));
   }
 
   List<Widget> _buildStepImages() {
+    final width = MediaQuery.of(context).size.width;
+    final cardsByRow =
+        ((width - kPadding * 2 - kCardSpacing * 2) / kCardSize).round();
+
     return <Widget>[
       ReorderableWrap(
-        spacing: 12,
-        runSpacing: 12,
+        spacing: kCardSpacing,
+        runSpacing: kCardSpacing,
+        alignment: WrapAlignment.spaceBetween,
         onReorder: (int oldIndex, int newIndex) {
-          setState(() {
-            final image = _imagesUrl.removeAt(oldIndex - 1);
-            _imagesUrl.insert(newIndex - 1, image);
-          });
+          // Use "- 1" because of first card is the add image
+          setState(() => _imagesData.move(oldIndex - 1, newIndex - 1));
         },
-        children: List.generate(_imagesUrl.length + 1, (index) {
-          return AddImageSquare(
-            imageUrl: index > 0 ? _imagesUrl[index - 1] : null,
-            onAdd: () async {
-              final List<XFile>? images = await _picker.pickMultiImage();
-              if ((images?.isEmpty ?? true) || !mounted) return;
-
-              setState(() => _isLoading = true);
-
-              await _uploadImages(images!);
-
-              if (!mounted) return;
-              setState(() => _isLoading = false);
-            },
-            onImageTap: () {
-              setState(() => _imagesUrl.removeAt(index - 1));
-            },
-          );
-        }),
+        children: List.generate(
+          (_imagesData.length + 1).roundToUpperMultiple(cardsByRow),
+          (index) {
+            if (index > _imagesData.length) {
+              return ReorderableWidget(
+                key: Key('$index'),
+                reorderable: false,
+                child: const SizedBox.square(dimension: kCardSize),
+              );
+            }
+            return AddImageSquare(
+              imageData: index > 0 ? _imagesData[index - 1] : null,
+              size: kCardSize,
+              onAdd: _onAddImage,
+              onImageTap: () => setState(() => _imagesData.removeAt(index - 1)),
+            );
+          },
+        ),
       ),
-      const SizedBox(height: 24),
+      const SizedBox(height: 24.0),
     ];
   }
 
@@ -498,26 +531,9 @@ class _CarAddViewState extends State<CarAddView> {
           onStepContinue: details.onStepContinue,
           onStepCancel: details.onStepCancel,
         ),
-        onStepContinue: _currentStep < 2
-            ? () {
-                if (_formKeys[_currentStep].currentState?.validate() ?? false) {
-                  setState(() => _currentStep++);
-                }
-              }
-            : null,
-        onStepTapped: (step) {
-          if (step > _currentStep) {
-            if (!(_formKeys[_currentStep].currentState?.validate() ?? false)) {
-              return;
-            }
-          }
-          setState(() => _currentStep = step);
-        },
-        onStepCancel: _currentStep > 0
-            ? () {
-                setState(() => _currentStep--);
-              }
-            : null,
+        onStepContinue: _currentStep < 2 ? _onStepContinue : null,
+        onStepTapped: _onStepTapped,
+        onStepCancel: _currentStep > 0 ? _onStepCancel : null,
         steps: [
           _buildStep(
             title: 'Info',
