@@ -58,7 +58,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBVONEts1evF8u17zb-qLdCXYpF8Erkb1k',
+    apiKey: 'AIzaSyANHRndLukgV0KVD1wOKbAoHhUsCQ27JDo',
     appId: '1:222460989670:ios:6331585376f62659b0eb27',
     messagingSenderId: '222460989670',
     projectId: 'carmanager-d506f',

@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:reorderables/reorderables.dart';
@@ -21,6 +20,8 @@ import '../../widgets/stepper_controls.widget.dart';
 import '../../widgets/add_image_square.widget.dart';
 import '../settings/settings.controller.dart';
 import '../../models/image_data.model.dart';
+import 'car_location_picker.view.dart';
+import 'model/car_location.model.dart';
 
 const kCardSize = 100.0;
 const kCardSpacing = 12.0;
@@ -60,6 +61,7 @@ class _CarAddViewState extends State<CarAddView> {
   late final TextEditingController _priceController;
   late final TextEditingController _adUrlController;
   late final TextEditingController _adDateController;
+  late final TextEditingController _locationController;
   late final TextEditingController _plateController;
   late final TextEditingController _vinController;
 
@@ -77,7 +79,6 @@ class _CarAddViewState extends State<CarAddView> {
     'handDrive': HandDrive.left.name,
     'isSold': false,
     'isArchive': false,
-    'position': const LatLng(41, -0.7).toJson() // TODO: TEMP
   };
 
   @override
@@ -95,7 +96,10 @@ class _CarAddViewState extends State<CarAddView> {
     _priceController = TextEditingController(text: car['price']?.toString());
     _adUrlController = TextEditingController(text: car['adUrl']);
     _adDateController = TextEditingController(
-      text: _formatDate(DateTime.tryParse(car['adDate'])),
+      text: _formatDate(DateTime.tryParse(car['adDate'] ?? '')),
+    );
+    _locationController = TextEditingController(
+      text: car['location']?['address'],
     );
     _plateController = TextEditingController(text: car['plate']);
     _vinController = TextEditingController(text: car['vin']);
@@ -114,6 +118,7 @@ class _CarAddViewState extends State<CarAddView> {
     _priceController.dispose();
     _adUrlController.dispose();
     _adDateController.dispose();
+    _locationController.dispose();
     _plateController.dispose();
     _vinController.dispose();
     super.dispose();
@@ -165,9 +170,8 @@ class _CarAddViewState extends State<CarAddView> {
   String _formatDate(DateTime? date) {
     if (date == null) return '';
 
-    return DateFormat.yMMMMEEEEd(Localizations.localeOf(context).languageCode)
-        .format(date)
-        .capitalize();
+    // Localizations.localeOf(context).languageCode
+    return DateFormat.yMMMMEEEEd('fr').format(date).capitalize();
   }
 
   Future<void> _addCar() async {
@@ -251,6 +255,21 @@ class _CarAddViewState extends State<CarAddView> {
 
     _adDateController.text = _formatDate(date);
     _updateCarValue('adDate', date.toIso8601String());
+  }
+
+  Future<void> _onLocationFieldTap() async {
+    CarLocation? location = await Navigator.of(context).pushNamed(
+      CarLocationPickerView.routeName,
+      arguments: CarLocationPickerViewArguments(
+        initialCarLocation: car['location'] != null
+            ? CarLocation.fromJson(car['location'])
+            : null,
+      ),
+    );
+    if (location == null || !mounted) return;
+
+    _locationController.text = location.address;
+    _updateCarValue('location', location.toJson());
   }
 
   Widget _buildLoader() {
@@ -337,10 +356,17 @@ class _CarAddViewState extends State<CarAddView> {
       TextFormField(
         controller: _adDateController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        keyboardType: TextInputType.url,
         decoration: inputDeco(labelText: 'Date ajout de l\'annonce *'),
         readOnly: true,
         onTap: _onDateFieldTap,
+        validator: validator.noEmpty,
+      ),
+      TextFormField(
+        controller: _locationController,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        decoration: inputDeco(labelText: 'Localisation *'),
+        readOnly: true,
+        onTap: _onLocationFieldTap,
         validator: validator.noEmpty,
       ),
       Column(

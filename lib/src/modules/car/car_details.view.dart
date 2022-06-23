@@ -146,7 +146,10 @@ class CarDetailsView extends StatelessWidget {
           ),
           _buildContent(
             title1: 'Location',
-            content1: "13 Route de la Borde,\nSaint-Sulpice-et-Cameyrac",
+            content1: car.location.address
+                .split(',')
+                .map((e) => e.trim().capitalize())
+                .join(',\n'),
             footer1: SizedBox(
               height: 165,
               child: IgnorePointer(
@@ -155,14 +158,14 @@ class CarDetailsView extends StatelessWidget {
                   myLocationButtonEnabled: false,
                   zoomControlsEnabled: false,
                   initialCameraPosition: CameraPosition(
-                    target: car.position,
+                    target: car.location.position,
                     zoom: 8,
                   ),
-                  onTap: (_) => _openMap(car.position),
+                  onTap: (_) => _openMap(car.location.position),
                   markers: {
                     Marker(
                       markerId: MarkerId(car.uuid),
-                      position: car.position,
+                      position: car.location.position,
                     ),
                   },
                 ),

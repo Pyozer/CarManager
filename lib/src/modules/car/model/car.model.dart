@@ -2,6 +2,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/extensions/number.extension.dart';
+import 'car_location.model.dart';
 
 enum HandDrive { left, right }
 
@@ -20,7 +21,7 @@ class Car {
   bool isArchive;
   final String adUrl;
   final DateTime adDate;
-  final LatLng position;
+  final CarLocation location;
   final String? plate;
   final String? vin;
 
@@ -39,7 +40,7 @@ class Car {
     required this.isArchive,
     required this.adUrl,
     required this.adDate,
-    required this.position,
+    required this.location,
     this.plate,
     this.vin,
   });
@@ -79,7 +80,12 @@ class Car {
       isArchive: data['isArchive'],
       adUrl: data['adUrl'],
       adDate: DateTime.parse(data['adDate']),
-      position: LatLng.fromJson(data['position'])!, // TODO: Not good
+      location: data['location'] != null
+          ? CarLocation.fromJson(data['location'])
+          : const CarLocation(
+              address: '13 route de la borde, saint-sulpice',
+              position: LatLng(44.897556, -0.378072),
+            ),
       plate: data['plate'],
       vin: data['vin'],
     );
@@ -101,7 +107,7 @@ class Car {
       'isArchive': isArchive,
       'adUrl': adUrl,
       'adDate': adDate.toIso8601String(),
-      'position': position.toJson(),
+      'location': location.toJson(),
       'plate': plate,
       'vin': vin,
     };
