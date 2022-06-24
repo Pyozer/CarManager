@@ -19,7 +19,7 @@
 // Equipée de harnais
 // 4 pneus récents (moins de 1000 km)
 // Vidange faite
-// Plaquettes de freins neuves 
+// Plaquettes de freins neuves
 // Voiture très peu utilisée, 33000 Km seulement
 //     ''',
 //     kms: 33000,

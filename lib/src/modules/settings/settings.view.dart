@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import 'settings.controller.dart';
+import 'settings_theme.controller.dart';
 
 class SettingsView extends StatelessWidget {
-  final SettingsController controller;
-
-  const SettingsView({Key? key, required this.controller}) : super(key: key);
+  const SettingsView({Key? key}) : super(key: key);
 
   static const routeName = '/settings';
 
   @override
   Widget build(BuildContext context) {
+    final settingsThemeController = context.watch<SettingsThemeController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -18,8 +19,8 @@ class SettingsView extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: DropdownButton<ThemeMode>(
-          value: controller.themeMode,
-          onChanged: controller.updateThemeMode,
+          value: settingsThemeController.themeMode,
+          onChanged: settingsThemeController.updateThemeMode,
           items: const [
             DropdownMenuItem(
               value: ThemeMode.system,
@@ -32,7 +33,7 @@ class SettingsView extends StatelessWidget {
             DropdownMenuItem(
               value: ThemeMode.dark,
               child: Text('Dark Theme'),
-            )
+            ),
           ],
         ),
       ),

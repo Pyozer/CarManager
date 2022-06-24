@@ -7,7 +7,9 @@ class RegExpInfo {
 
 // Match car plate like AA-123-BB or 1234-AA-56
 final carPlateRegExp = RegExpInfo(
-  RegExp(r'^(([A-Za-z]{2}-[0-9]{3}-[A-Za-z]{2})|([0-9]{4}-[A-Za-z]{2}-[0-9]{2}))$'),
+  RegExp(
+    r'^(([A-Za-z]{2}-[0-9]{3}-[A-Za-z]{2})|([0-9]{4}-[A-Za-z]{2}-[0-9]{2}))$',
+  ),
   'AA-123-BB / 1234-AA-56',
 );
 

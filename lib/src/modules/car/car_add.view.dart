@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:uuid/uuid.dart';
 
@@ -18,7 +19,7 @@ import '../../utils/extensions/string.extension.dart';
 import '../../utils/validators.utils.dart';
 import '../../widgets/stepper_controls.widget.dart';
 import '../../widgets/add_image_square.widget.dart';
-import '../settings/settings.controller.dart';
+import '../settings/settings_cars.controller.dart';
 import '../../models/image_data.model.dart';
 import 'car_location_picker.view.dart';
 import 'model/car_location.model.dart';
@@ -34,11 +35,9 @@ class CarAddViewArguments {
 }
 
 class CarAddView extends StatefulWidget {
-  final SettingsController controller;
   final Car? baseCar;
 
-  const CarAddView({Key? key, required this.controller, this.baseCar})
-      : super(key: key);
+  const CarAddView({Key? key, this.baseCar}) : super(key: key);
 
   static const routeName = '/car_add';
 
@@ -195,13 +194,15 @@ class _CarAddViewState extends State<CarAddView> {
         ));
         car['imagesUrl'] = imagesUrl;
       }
+      if (!mounted) return;
+
       final newCar = Car.fromJson(car);
 
+      final settingsController = context.read<SettingsCarsController>();
       if (widget.baseCar != null) {
-        await widget.controller.updateCar(newCar);
+        await settingsController.updateCar(newCar);
       } else {
-        await widget.controller.addCar(newCar);
-        await widget.controller.loadCars(notify: true);
+        await settingsController.addCar(newCar);
       }
       if (!mounted) return;
       Navigator.of(context).pop();

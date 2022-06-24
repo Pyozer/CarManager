@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 import 'src/app.dart';
-import 'src/modules/settings/settings.controller.dart';
-import 'src/modules/settings/settings.service.dart';
+import 'src/modules/settings/settings_cars.controller.dart';
+import 'src/modules/settings/settings_theme.controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,8 +14,23 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  final settingsController = SettingsController(SettingsService());
-  await settingsController.loadSettings();
+  final settingsThemeController = SettingsThemeController();
+  await settingsThemeController.load();
 
-  runApp(MyApp(settingsController: settingsController));
+  final settingsCarsController = SettingsCarsController();
+  await settingsCarsController.load();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<SettingsThemeController>.value(
+          value: settingsThemeController,
+        ),
+        ChangeNotifierProvider<SettingsCarsController>.value(
+          value: settingsCarsController,
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }

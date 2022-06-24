@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:provider/provider.dart';
 
+import '../settings/settings_cars.controller.dart';
 import 'car_add.view.dart';
 import 'car_archive_list.view.dart';
 import 'widget/car_card.widget.dart';
 import '../filters/filters.view.dart';
-import '../settings/settings.controller.dart';
 import '../settings/settings.view.dart';
 
-class CarListView extends StatelessWidget {
-  final SettingsController controller;
-
-  const CarListView({Key? key, required this.controller}) : super(key: key);
+class CarListView extends StatefulWidget {
+  const CarListView({Key? key}) : super(key: key);
 
   static const routeName = '/';
 
+  @override
+  State<CarListView> createState() => _CarListViewState();
+}
+
+class _CarListViewState extends State<CarListView> {
   Future<void> _onRefresh() {
-    return controller.loadCars(notify: true);
+    return context.read<SettingsCarsController>().load();
   }
 
   @override
   Widget build(BuildContext context) {
-    final cars = controller.carsSaved.where((car) => !car.isArchive).toList();
+    final cars = context
+        .watch<SettingsCarsController>()
+        .cars
+        .where((car) => !car.isArchive)
+        .toList();
 
     return Scaffold(
       appBar: AppBar(

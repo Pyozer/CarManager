@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../settings/settings_cars.controller.dart';
 import 'widget/car_card.widget.dart';
-import '../settings/settings.controller.dart';
 
 class CarArchiveListView extends StatelessWidget {
-  final SettingsController controller;
-
-  const CarArchiveListView({Key? key, required this.controller})
-      : super(key: key);
+  const CarArchiveListView({Key? key}) : super(key: key);
 
   static const routeName = '/archives';
 
   @override
   Widget build(BuildContext context) {
-    final carsSaved =
-        controller.carsSaved.where((car) => car.isArchive).toList();
+    final cars = context
+        .watch<SettingsCarsController>()
+        .cars
+        .where((car) => car.isArchive)
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -31,9 +32,9 @@ class CarArchiveListView extends StatelessWidget {
       ),
       body: ListView.builder(
         padding: const EdgeInsets.only(top: 16, bottom: 82),
-        itemCount: carsSaved.length,
+        itemCount: cars.length,
         itemBuilder: (BuildContext context, int index) {
-          return CarCard(car: carsSaved[index]);
+          return CarCard(car: cars[index]);
         },
       ),
     );

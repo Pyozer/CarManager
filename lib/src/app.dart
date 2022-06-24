@@ -2,6 +2,7 @@ import 'package:car_manager/src/modules/car/model/car_location.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:provider/provider.dart';
 
 import 'modules/car/car_add.view.dart';
 import 'modules/car/car_archive_list.view.dart';
@@ -10,14 +11,12 @@ import 'modules/car/car_gallery.view.dart';
 import 'modules/car/car_list.view.dart';
 import 'modules/car/car_location_picker.view.dart';
 import 'modules/filters/filters.view.dart';
-import 'modules/settings/settings.controller.dart';
+import 'modules/settings/settings_theme.controller.dart';
 import 'modules/settings/settings.view.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
-  final SettingsController settingsController;
-
-  const MyApp({Key? key, required this.settingsController}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
   MaterialPageRoute<T> _buildRoute<T>(RouteSettings settings, Widget child) {
     return MaterialPageRoute<T>(
@@ -28,6 +27,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settingsThemeController = context.watch<SettingsThemeController>();
+
     final lightTheme = ThemeData(
       colorScheme: ColorScheme.fromSwatch(
         accentColor: Colors.blueAccent,
@@ -43,7 +44,7 @@ class MyApp extends StatelessWidget {
     );
 
     return AnimatedBuilder(
-      animation: settingsController,
+      animation: settingsThemeController,
       builder: (BuildContext context, Widget? child) {
         return MaterialApp(
           restorationScopeId: 'app',
@@ -60,13 +61,13 @@ class MyApp extends StatelessWidget {
           onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
           theme: lightTheme,
           darkTheme: darkTheme,
-          themeMode: settingsController.themeMode,
+          themeMode: settingsThemeController.themeMode,
           onGenerateRoute: (RouteSettings settings) {
             switch (settings.name) {
               case SettingsView.routeName:
                 return _buildRoute<void>(
                   settings,
-                  SettingsView(controller: settingsController),
+                  const SettingsView(),
                 );
 
               case FiltersView.routeName:
@@ -79,10 +80,7 @@ class MyApp extends StatelessWidget {
                 final args = settings.arguments as CarAddViewArguments?;
                 return _buildRoute<void>(
                   settings,
-                  CarAddView(
-                    controller: settingsController,
-                    baseCar: args?.baseCar,
-                  ),
+                  CarAddView(baseCar: args?.baseCar),
                 );
 
               case CarLocationPickerView.routeName:
@@ -99,10 +97,7 @@ class MyApp extends StatelessWidget {
                 final args = settings.arguments as CarDetailsViewArguments;
                 return _buildRoute<void>(
                   settings,
-                  CarDetailsView(
-                    controller: settingsController,
-                    carUUID: args.carUUID,
-                  ),
+                  CarDetailsView(carUUID: args.carUUID),
                 );
 
               case CarGalleryView.routeName:
@@ -118,14 +113,14 @@ class MyApp extends StatelessWidget {
               case CarArchiveListView.routeName:
                 return _buildRoute<void>(
                   settings,
-                  CarArchiveListView(controller: settingsController),
+                  const CarArchiveListView(),
                 );
 
               case CarListView.routeName:
               default:
                 return _buildRoute<void>(
                   settings,
-                  CarListView(controller: settingsController),
+                  const CarListView(),
                 );
             }
           },

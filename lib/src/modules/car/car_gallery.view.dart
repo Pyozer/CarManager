@@ -58,7 +58,9 @@ class _CarGalleryViewState extends State<CarGalleryView> {
             itemCount: widget.imagesUrl.length,
             builder: (_, int index) {
               return PhotoViewGalleryPageOptions(
-                imageProvider: CachedNetworkImageProvider(widget.imagesUrl[index]),
+                imageProvider: CachedNetworkImageProvider(
+                  widget.imagesUrl[index],
+                ),
                 initialScale: PhotoViewComputedScale.contained,
                 heroAttributes: PhotoViewHeroAttributes(
                   tag: widget.imagesUrl[index],

@@ -3,12 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../utils/extensions/string.extension.dart';
 import '../../widgets/return_button.widget.dart';
-import '../settings/settings.controller.dart';
+import '../settings/settings_cars.controller.dart';
 import 'car_add.view.dart';
 import 'model/car.model.dart';
 import 'widget/car_detail_info.widget.dart';
@@ -21,16 +22,18 @@ class CarDetailsViewArguments {
   CarDetailsViewArguments({required this.carUUID});
 }
 
-class CarDetailsView extends StatelessWidget {
-  final SettingsController controller;
+class CarDetailsView extends StatefulWidget {
   final String carUUID;
 
-  const CarDetailsView(
-      {Key? key, required this.controller, required this.carUUID})
-      : super(key: key);
+  const CarDetailsView({Key? key, required this.carUUID}) : super(key: key);
 
   static const routeName = '/car_detail';
 
+  @override
+  State<CarDetailsView> createState() => _CarDetailsViewState();
+}
+
+class _CarDetailsViewState extends State<CarDetailsView> {
   Future<void> _onEdit(BuildContext context, Car car) {
     return Navigator.of(context).pushNamed(
       CarAddView.routeName,
@@ -40,7 +43,7 @@ class CarDetailsView extends StatelessWidget {
 
   Future<void> _onArchive(Car car) async {
     car.isArchive = !car.isArchive;
-    await controller.updateCar(car);
+    await context.read<SettingsCarsController>().updateCar(car);
   }
 
   void _openMap(LatLng latlng) {
@@ -101,7 +104,10 @@ class CarDetailsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final car = controller.carsSaved.firstWhere((car) => car.uuid == carUUID);
+    final car = context
+        .watch<SettingsCarsController>()
+        .cars
+        .firstWhere((car) => car.uuid == widget.carUUID);
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
