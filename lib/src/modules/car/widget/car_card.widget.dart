@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import '../../../widgets/image_network_loader.widget.dart';
-import '../model/car.model.dart';
 import '../car_details.view.dart';
+import '../model/car.model.dart';
 
 class CarCard extends StatelessWidget {
   final Car car;

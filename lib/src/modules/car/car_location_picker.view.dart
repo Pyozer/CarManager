@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
@@ -43,20 +44,39 @@ class _CarLocationPickerViewState extends State<CarLocationPickerView> {
   }
 
   Future<void> _onSubmit() async {
+    final String address = await placemarkFromCoordinates(
+      _currentCameraPosition.target.latitude,
+      _currentCameraPosition.target.longitude,
+      localeIdentifier: Localizations.localeOf(context).languageCode,
+    ).then((value) {
+      final placemark = value.firstOrNull;
+      final result = [
+        if (placemark?.locality?.isNotEmpty ?? false) value.first.locality!,
+        if (placemark?.postalCode?.isNotEmpty ?? false)
+          '(${value.first.postalCode!})',
+      ];
+
+      if (result.isEmpty) return _searchController.text.trim();
+      return result.join(' ');
+    });
+
+    if (!mounted) return;
     Navigator.of(context).pop(
       CarLocation(
-        address: _searchController.text,
+        address: address,
         position: _currentCameraPosition.target,
       ),
     );
   }
 
   Future<void> _onAddressSelected(String address) async {
+    if (address.isEmpty) return;
+
     List<Location> locations = await locationFromAddress(address);
     if (locations.isNotEmpty) {
       final location = locations.first;
 
-      _controller!.animateCamera(CameraUpdate.newCameraPosition(
+      await _controller!.animateCamera(CameraUpdate.newCameraPosition(
         CameraPosition(
           target: LatLng(location.latitude, location.longitude),
           zoom: 15,
@@ -79,12 +99,13 @@ class _CarLocationPickerViewState extends State<CarLocationPickerView> {
         // The search area here
         title: TextField(
           controller: _searchController,
+          autofocus: true,
+          textInputAction: TextInputAction.search,
+          onSubmitted: (address) => _onAddressSelected(address.trim()),
           decoration: InputDecoration(
             suffixIcon: IconButton(
-              onPressed: () {
-                _onAddressSelected(_searchController.text);
-              },
-              icon: const Icon(Icons.search, color: Colors.white),
+              onPressed: _searchController.clear,
+              icon: const Icon(Icons.clear, color: Colors.white),
             ),
             hintText: 'Address here...',
             border: InputBorder.none,

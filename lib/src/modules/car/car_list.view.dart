@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
+import '../../utils/extensions/media_query_data.extension.dart';
+import '../filters/filters.view.dart';
+import '../filters/models/filters.model.dart';
+import '../settings/settings.view.dart';
 import '../settings/settings_cars.controller.dart';
 import 'car_add.view.dart';
 import 'car_archive_list.view.dart';
 import 'widget/car_card.widget.dart';
-import '../filters/filters.view.dart';
-import '../settings/settings.view.dart';
 
 class CarListView extends StatefulWidget {
   const CarListView({Key? key}) : super(key: key);
@@ -19,8 +21,37 @@ class CarListView extends StatefulWidget {
 }
 
 class _CarListViewState extends State<CarListView> {
+  Filters _filters = Filters();
+
   Future<void> _onRefresh() {
     return context.read<SettingsCarsController>().load();
+  }
+
+  Widget _buildFilters() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: Wrap(
+        direction: Axis.horizontal,
+        alignment: WrapAlignment.start,
+        spacing: 12.0,
+        children: [
+          if (_filters.make != null)
+            Chip(
+              label: Text(_filters.make!.name),
+              onDeleted: () {
+                setState(() => _filters.make = null);
+              },
+            ),
+          if (_filters.model != null)
+            Chip(
+              label: Text(_filters.model!.model),
+              onDeleted: () {
+                setState(() => _filters.model = null);
+              },
+            ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -68,7 +99,12 @@ class _CarListViewState extends State<CarListView> {
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => Navigator.of(context).pushNamed(FiltersView.routeName),
+        onPressed: () async {
+          final filters = await Navigator.of(context).pushNamed<Filters>(FiltersView.routeName);
+          if (filters == null || !mounted) return;
+
+          setState(() => _filters = filters);
+        },
         icon: const Icon(Icons.filter_alt_outlined),
         label: const Text('Filters'),
         heroTag: 'Filters',
@@ -76,10 +112,16 @@ class _CarListViewState extends State<CarListView> {
       body: RefreshIndicator(
         onRefresh: _onRefresh,
         child: ListView.builder(
-          padding: const EdgeInsets.only(top: 16, bottom: 82),
-          itemCount: cars.length,
-          itemBuilder: (_, int index) => CarCard(car: cars[index]),
-        ),
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).paddingAboveFAB,
+            ),
+            itemCount: cars.length + 1,
+            itemBuilder: (_, int index) {
+              if (index == 0) {
+                return _buildFilters();
+              }
+              return CarCard(car: cars[index - 1]);
+            }),
       ),
     );
   }

@@ -31,7 +31,7 @@ class StepperControls extends StatelessWidget {
     const EdgeInsets buttonPadding = EdgeInsets.symmetric(horizontal: 16);
 
     return Container(
-      margin: const EdgeInsets.only(top: 16),
+      margin: const EdgeInsets.only(top: 24.0, bottom: 24.0),
       child: ConstrainedBox(
         constraints: const BoxConstraints.tightFor(height: 48),
         child: Row(

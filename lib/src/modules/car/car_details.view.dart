@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
+import '../../utils/extensions/media_query_data.extension.dart';
 import '../../utils/extensions/string.extension.dart';
 import '../../widgets/return_button.widget.dart';
 import '../settings/settings_cars.controller.dart';
@@ -115,7 +116,9 @@ class _CarDetailsViewState extends State<CarDetailsView> {
         child: const Icon(Icons.visibility),
       ),
       body: ListView(
-        padding: const EdgeInsets.only(bottom: 124),
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).paddingAboveFAB,
+        ),
         children: [
           Stack(
             children: [

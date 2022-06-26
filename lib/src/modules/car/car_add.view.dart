@@ -1,26 +1,26 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:reorderables/reorderables.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../models/image_data.model.dart';
 import '../../modules/car/model/car.model.dart';
-import '../../utils/image.util.dart';
-import '../../utils/regexp.util.dart';
 import '../../utils/extensions/list.extension.dart';
 import '../../utils/extensions/number.extension.dart';
 import '../../utils/extensions/string.extension.dart';
+import '../../utils/image.util.dart';
+import '../../utils/regexp.util.dart';
 import '../../utils/validators.utils.dart';
-import '../../widgets/stepper_controls.widget.dart';
 import '../../widgets/add_image_square.widget.dart';
+import '../../widgets/stepper_controls.widget.dart';
 import '../settings/settings_cars.controller.dart';
-import '../../models/image_data.model.dart';
 import 'car_location_picker.view.dart';
 import 'model/car_location.model.dart';
 

@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/material.dart';
 
-import '../car_gallery.view.dart';
-import '../../../widgets/image_network_loader.widget.dart';
 import '../../../widgets/gallery_indicator.widget.dart';
+import '../../../widgets/image_network_loader.widget.dart';
+import '../car_gallery.view.dart';
 
 class CarGallery extends StatefulWidget {
   final List<String> imagesUrl;

@@ -1,4 +1,3 @@
-import 'package:car_manager/src/modules/car/model/car_location.model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -10,9 +9,11 @@ import 'modules/car/car_details.view.dart';
 import 'modules/car/car_gallery.view.dart';
 import 'modules/car/car_list.view.dart';
 import 'modules/car/car_location_picker.view.dart';
+import 'modules/car/model/car_location.model.dart';
 import 'modules/filters/filters.view.dart';
-import 'modules/settings/settings_theme.controller.dart';
+import 'modules/filters/models/filters.model.dart';
 import 'modules/settings/settings.view.dart';
+import 'modules/settings/settings_theme.controller.dart';
 
 /// The Widget that configures your application.
 class MyApp extends StatelessWidget {
@@ -71,9 +72,10 @@ class MyApp extends StatelessWidget {
                 );
 
               case FiltersView.routeName:
-                return _buildRoute<void>(
+                final args = settings.arguments as FiltersViewArguments?;
+                return _buildRoute<Filters>(
                   settings,
-                  const FiltersView(),
+                  FiltersView(baseFilters: args?.baseFilters),
                 );
 
               case CarAddView.routeName:
