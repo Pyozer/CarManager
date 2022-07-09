@@ -64,39 +64,14 @@ class _CarDetailsViewState extends State<CarDetailsView> {
     String? title1,
     String? content1,
     Widget? footer1,
-    String? title2,
-    String? content2,
-    Widget? footer2,
   }) {
-    if ((title1 != null && content1 != null) ||
-        (title2 != null && content2 != null)) {
-      int flex1 = ((content1?.length ?? 1) / (content2?.length ?? 1)).round();
-      int flex2 = ((content2?.length ?? 1) / (content1?.length ?? 1)).round();
-
+    if ((title1 != null && content1 != null)) {
       return Padding(
-        padding: const EdgeInsets.fromLTRB(12, 12, 12, 0),
-        child: Row(
-          children: [
-            if (title1 != null && content1 != null)
-              Expanded(
-                flex: flex1,
-                child: CarDetailInfo(
-                  title: title1,
-                  content: content1,
-                  footer: footer1,
-                ),
-              ),
-            if (title2 != null && content2 != null) const SizedBox(width: 12),
-            if (title2 != null && content2 != null)
-              Expanded(
-                flex: flex2,
-                child: CarDetailInfo(
-                  title: title2,
-                  content: content2,
-                  footer: footer2,
-                ),
-              ),
-          ],
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+        child: CarDetailInfo(
+          title: title1,
+          content: content1,
+          footer: footer1,
         ),
       );
     }
@@ -127,30 +102,48 @@ class _CarDetailsViewState extends State<CarDetailsView> {
             ],
           ),
           if (car.isSold) const CarSold(),
-          _buildContent(
-            title1: 'Titre',
-            content1: car.title,
+          const SizedBox(height: 24.0),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            child: Text(car.year.toString(),
+                style: Theme.of(context).textTheme.bodyMedium),
+          ),
+          const SizedBox(height: 8.0),
+          Padding(
+            padding: const EdgeInsets.only(left: 16.0, right: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'Lotus Exige',
+                  style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w900),
+                ),
+                Text(
+                  car.displayPrice,
+                  style: const TextStyle(
+                    fontSize: 20.0,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12.0),
+          Padding(
+            padding: const EdgeInsets.only(left: 15.0, right: 15.0),
+            child: Wrap(
+              alignment: WrapAlignment.start,
+              spacing: 10.0,
+              children: [
+                Chip(label: Text(car.displayKMs)),
+                Chip(label: Text('${car.hp} HP')),
+                Chip(label: Text(car.displayDate)),
+                Chip(label: Text(car.handDrive.name)),
+              ],
+            ),
           ),
           _buildContent(
-            title1: 'Date immatriculation',
-            content1: car.displayDate,
-            title2: 'Kilomètrage',
-            content2: car.displayKMs,
-          ),
-          _buildContent(
-            title1: 'Plaque',
-            content1: car.plate,
-            title2: 'VIN',
-            content2: car.vin,
-          ),
-          _buildContent(
-            title1: 'Puissance',
-            content1: '${car.hp} HP',
-            title2: 'Prix',
-            content2: car.displayPrice,
-          ),
-          _buildContent(
-            title1: 'Description',
+            title1: car.title,
             content1: car.description,
           ),
           _buildContent(
@@ -180,6 +173,14 @@ class _CarDetailsViewState extends State<CarDetailsView> {
                 ),
               ),
             ),
+          ),
+          _buildContent(
+            title1: 'Plaque',
+            content1: car.plate,
+          ),
+          _buildContent(
+            title1: 'VIN',
+            content1: car.vin,
           ),
           _buildContent(
             title1: 'Ajouté le',

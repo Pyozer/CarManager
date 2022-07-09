@@ -4,7 +4,28 @@ import 'package:intl/intl.dart';
 import '../../../utils/extensions/number.extension.dart';
 import 'car_location.model.dart';
 
-enum HandDrive { left, right }
+enum HandDrive {
+  lhd,
+  rhd;
+  
+  String get name {
+    switch (this) {
+      case HandDrive.lhd:
+        return 'LHD';
+      case HandDrive.rhd:
+        return 'RHD';
+    }
+  }
+
+  String get rawName {
+    switch (this) {
+      case HandDrive.lhd:
+        return 'lhd';
+      case HandDrive.rhd:
+        return 'rhd';
+    }
+  }
+}
 
 class Car {
   final String uuid;
@@ -57,10 +78,6 @@ class Car {
     return NumberFormat.currency(decimalDigits: 0, symbol: '€').format(price);
   }
 
-  String get displayHandDrive {
-    return handDrive == HandDrive.right ? 'RHD' : 'LHD';
-  }
-
   factory Car.fromJson(dynamic data) {
     return Car(
       uuid: data['uuid'],
@@ -73,8 +90,8 @@ class Car {
       hp: data['hp'],
       price: data['price'],
       handDrive: HandDrive.values.firstWhere(
-        (v) => v.name == data['handDrive'],
-        orElse: () => HandDrive.left,
+        (v) => v.rawName == data['handDrive'],
+        orElse: () => HandDrive.lhd,
       ),
       isSold: data['isSold'],
       isArchive: data['isArchive'],
@@ -102,7 +119,7 @@ class Car {
       'month': month,
       'hp': hp,
       'price': price,
-      'handDrive': handDrive.name,
+      'handDrive': handDrive.rawName,
       'isSold': isSold,
       'isArchive': isArchive,
       'adUrl': adUrl,

@@ -2,45 +2,68 @@ import 'package:collection/collection.dart';
 
 import '../../car/model/car.model.dart';
 
-class CarMake {
-  final String name;
-  final String logo;
+enum CarMake {
+  bmw,
+  lotus,
+  porsche,
+  volvo;
 
-  const CarMake(this.name, this.logo);
+  static CarMake? fromName(String? name) {
+    if (name == 'BMW') return CarMake.bmw;
+    if (name == 'Lotus') return CarMake.lotus;
+    if (name == 'Porsche') return CarMake.porsche;
+    if (name == 'Volvo') return CarMake.volvo;
+    return null;
+  }
+
+  String get name {
+    switch (this) {
+      case CarMake.bmw:
+        return 'BMW';
+      case CarMake.lotus:
+        return 'Lotus';
+      case CarMake.porsche:
+        return 'Porsche';
+      case CarMake.volvo:
+        return 'Volvo';
+    }
+  }
+
+  String get logo {
+    switch (this) {
+      case CarMake.bmw:
+        return 'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/optimized/bmw.png';
+      case CarMake.lotus:
+        return 'http://www.logo-voiture.com/wp-content/uploads/2021/01/Lotus-logo-2019-1800x1800-grand.png';
+      case CarMake.porsche:
+        return 'http://assets.stickpng.com/images/580b585b2edbce24c47b2cac.png';
+      case CarMake.volvo:
+        return 'https://upload.wikimedia.org/wikipedia/commons/3/3c/Volvo_Trucks_Logo.png';
+    }
+  }
 }
 
-class Car {
+class FilterCar {
   final CarMake make;
   final String model;
 
-  const Car(this.make, this.model);
+  const FilterCar(this.make, this.model);
 }
 
-const kCarMakes = <CarMake>[
-  CarMake('BMW',
-      'https://raw.githubusercontent.com/filippofilip95/car-logos-dataset/master/logos/optimized/bmw.png'),
-  CarMake('Lotus',
-      'http://www.logo-voiture.com/wp-content/uploads/2021/01/Lotus-logo-2019-1800x1800-grand.png'),
-  CarMake('Porsche',
-      'http://assets.stickpng.com/images/580b585b2edbce24c47b2cac.png'),
-  CarMake('Volvo',
-      'https://upload.wikimedia.org/wikipedia/commons/3/3c/Volvo_Trucks_Logo.png'),
-];
-
-final kCars = <Car>[
-  Car(kCarMakes[0], 'M2'),
-  Car(kCarMakes[0], 'M3'),
-  Car(kCarMakes[1], 'Elise'),
-  Car(kCarMakes[1], 'Exige'),
-  Car(kCarMakes[1], 'Evora'),
-  Car(kCarMakes[2], '911 997'),
-  Car(kCarMakes[3], 'S60R'),
-  Car(kCarMakes[3], 'V70R'),
+const kCars = <FilterCar>[
+  FilterCar(CarMake.bmw, 'M2'),
+  FilterCar(CarMake.bmw, 'M3'),
+  FilterCar(CarMake.lotus, 'Elise'),
+  FilterCar(CarMake.lotus, 'Exige'),
+  FilterCar(CarMake.lotus, 'Evora'),
+  FilterCar(CarMake.porsche, '911 997'),
+  FilterCar(CarMake.volvo, 'S60R'),
+  FilterCar(CarMake.volvo, 'V70R'),
 ];
 
 class Filters {
   CarMake? _make;
-  Car? model;
+  String? model;
   int? minYear;
   int? maxYear;
   int? minHP;
@@ -79,16 +102,14 @@ class Filters {
   }
 
   factory Filters.fromJson(dynamic data) {
-    final carMake = data['make'] != null
-        ? kCarMakes.firstWhereOrNull((make) => make.name == data['make'])
-        : null;
+    final carMake = CarMake.fromName(data['make']);
     return Filters(
       make: carMake,
       model: carMake != null && data['model'] != null
           ? kCars.firstWhereOrNull(
               (car) =>
                   car.make.name == carMake.name && car.model == data['model'],
-            )
+            )?.model
           : null,
       minYear: data['minYear'],
       maxYear: data['maxYear'],
@@ -103,7 +124,7 @@ class Filters {
   Map<String, dynamic> toJson() {
     return {
       'make': make?.name,
-      'model': model?.model,
+      'model': model,
       'minYear': minYear,
       'maxYear': maxYear,
       'minHP': minHP,

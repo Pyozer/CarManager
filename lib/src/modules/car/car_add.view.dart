@@ -75,7 +75,7 @@ class _CarAddViewState extends State<CarAddView> {
 
   Map<String, dynamic> car = {
     'uuid': const Uuid().v4(),
-    'handDrive': HandDrive.left.name,
+    'handDrive': HandDrive.lhd.name,
     'isSold': false,
     'isArchive': false,
   };
@@ -157,13 +157,6 @@ class _CarAddViewState extends State<CarAddView> {
         duration: const Duration(seconds: 2),
       ),
     );
-  }
-
-  String _displayHandDrive(HandDrive value) {
-    if (value == HandDrive.left) {
-      return 'A gauche';
-    }
-    return 'A droite';
   }
 
   String _formatDate(DateTime? date) {
@@ -462,7 +455,7 @@ class _CarAddViewState extends State<CarAddView> {
             spacing: 16,
             children: HandDrive.values.mapList((handDrive) {
               return ChoiceChip(
-                label: Text(_displayHandDrive(handDrive)),
+                label: Text(handDrive.name),
                 labelStyle: handDrive.name == car['handDrive']
                     ? const TextStyle(color: Colors.white)
                     : null,

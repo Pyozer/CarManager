@@ -50,7 +50,7 @@ class CarCard extends StatelessWidget {
                     Text(car.title, style: textTheme.titleSmall),
                     const SizedBox(height: 8),
                     Text(
-                      '${car.displayDate} - ${car.displayKMs} - ${car.displayHandDrive}',
+                      '${car.displayDate} - ${car.displayKMs} - ${car.handDrive.name}',
                       style: textTheme.bodySmall,
                     ),
                     const SizedBox(height: 16),

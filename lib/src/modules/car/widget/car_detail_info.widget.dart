@@ -38,12 +38,12 @@ class CarDetailInfo extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
-                child: Text(title, style: textTheme.bodySmall),
+                child: Text(title, style: textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w700)),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12.0),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-                child: Text(content, style: textTheme.titleSmall),
+                child: Text(content, style: textTheme.bodyMedium),
               ),
               if (footer != null) footer!,
             ],
