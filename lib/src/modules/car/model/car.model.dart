@@ -7,7 +7,7 @@ import 'car_location.model.dart';
 enum HandDrive {
   lhd,
   rhd;
-  
+
   String get name {
     switch (this) {
       case HandDrive.lhd:
@@ -75,7 +75,8 @@ class Car {
   }
 
   String get displayPrice {
-    return NumberFormat.currency(decimalDigits: 0, symbol: '€').format(price);
+    return NumberFormat.currency(decimalDigits: 0, symbol: '€', locale: 'fr')
+        .format(price);
   }
 
   factory Car.fromJson(dynamic data) {

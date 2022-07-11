@@ -38,8 +38,12 @@ class ReturnButton extends StatelessWidget {
                 width: 35,
                 height: 35,
                 child: isClose
-                    ? const Icon(Icons.close)
-                    : Icon(_getBackIcon(Theme.of(context).platform), size: 18)),
+                    ? const Icon(Icons.close, color: Colors.white)
+                    : Icon(
+                        _getBackIcon(Theme.of(context).platform),
+                        color: Colors.white,
+                        size: 18.0,
+                      )),
           ),
         ),
       ),

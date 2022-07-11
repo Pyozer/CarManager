@@ -3,53 +3,46 @@ import 'package:flutter/services.dart';
 
 class CarDetailInfo extends StatelessWidget {
   final String title;
-  final String content;
-  final Widget? footer;
+  final Widget child;
+  final String? copyableText;
 
   const CarDetailInfo(
-      {Key? key, required this.title, required this.content, this.footer})
+      {Key? key, required this.title, required this.child, this.copyableText})
       : super(key: key);
+
+  Future<void> _copyText(BuildContext context) async {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Copié !'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+    await Clipboard.setData(ClipboardData(text: copyableText));
+  }
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final borderRadius = BorderRadius.circular(12);
-
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: borderRadius),
-      child: InkWell(
-        onLongPress: () async {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Copié !'),
-              duration: Duration(seconds: 1),
-            ),
-          );
-          await Clipboard.setData(ClipboardData(text: content));
-        },
-        borderRadius: borderRadius,
-        child: ClipRRect(
-          borderRadius: borderRadius,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 16.0, 16.0, 0.0),
-                child: Text(title, style: textTheme.bodySmall!.copyWith(fontWeight: FontWeight.w700)),
-              ),
-              const SizedBox(height: 12.0),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-                child: Text(content, style: textTheme.bodyMedium),
-              ),
-              if (footer != null) footer!,
-            ],
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        ListTile(
+          title: Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium,
           ),
+          trailing: copyableText != null
+              ? IconButton(
+                  icon: const Icon(Icons.copy, size: 15.0),
+                  onPressed: () => _copyText(context),
+                )
+              : null,
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 8.0),
+          child: child,
+        ),
+      ],
     );
   }
 }

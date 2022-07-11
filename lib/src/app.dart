@@ -8,6 +8,7 @@ import 'modules/car/car_archive_list.view.dart';
 import 'modules/car/car_details.view.dart';
 import 'modules/car/car_gallery.view.dart';
 import 'modules/car/car_list.view.dart';
+import 'modules/car/car_location.view.dart';
 import 'modules/car/car_location_picker.view.dart';
 import 'modules/car/model/car_location.model.dart';
 import 'modules/filters/filters.view.dart';
@@ -32,14 +33,17 @@ class MyApp extends StatelessWidget {
 
     final lightTheme = ThemeData(
       colorScheme: ColorScheme.fromSwatch(
+        primarySwatch: Colors.blue,
         accentColor: Colors.blueAccent,
       ),
       toggleableActiveColor: Colors.blueAccent,
     );
+
     final darkTheme = ThemeData(
       colorScheme: ColorScheme.fromSwatch(
         brightness: Brightness.dark,
-        accentColor: Colors.blueAccent,
+        primarySwatch: Colors.yellow,
+        accentColor: Colors.yellow,
       ),
       toggleableActiveColor: Colors.blueAccent,
     );
@@ -100,6 +104,13 @@ class MyApp extends StatelessWidget {
                 return _buildRoute<void>(
                   settings,
                   CarDetailsView(carUUID: args.carUUID),
+                );
+
+              case CarLocationView.routeName:
+                final args = settings.arguments as CarLocationViewArguments;
+                return _buildRoute<void>(
+                  settings,
+                  CarLocationView(location: args.location),
                 );
 
               case CarGalleryView.routeName:

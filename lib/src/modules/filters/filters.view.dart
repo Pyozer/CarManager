@@ -128,7 +128,7 @@ class _FiltersViewState extends State<FiltersView> {
             items: HandDrive.values
                 .map((handDrive) => DropdownMenuItem(
                       value: handDrive,
-                      child: Text(handDrive.name.toUpperCase()),
+                      child: Text(handDrive.name),
                     ))
                 .toList(),
           ),

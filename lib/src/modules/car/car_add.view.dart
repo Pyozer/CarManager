@@ -75,7 +75,7 @@ class _CarAddViewState extends State<CarAddView> {
 
   Map<String, dynamic> car = {
     'uuid': const Uuid().v4(),
-    'handDrive': HandDrive.lhd.name,
+    'handDrive': HandDrive.lhd.rawName,
     'isSold': false,
     'isArchive': false,
   };
@@ -456,16 +456,16 @@ class _CarAddViewState extends State<CarAddView> {
             children: HandDrive.values.mapList((handDrive) {
               return ChoiceChip(
                 label: Text(handDrive.name),
-                labelStyle: handDrive.name == car['handDrive']
+                labelStyle: handDrive.rawName == car['handDrive']
                     ? const TextStyle(color: Colors.white)
                     : null,
                 elevation: 4,
                 selectedColor: Theme.of(context).colorScheme.secondary,
-                selected: handDrive.name == car['handDrive'],
+                selected: handDrive.rawName == car['handDrive'],
                 onSelected: (bool selected) {
                   _updateCarValue(
                     'handDrive',
-                    selected ? handDrive.name : null,
+                    selected ? handDrive.rawName : null,
                   );
                 },
               );
