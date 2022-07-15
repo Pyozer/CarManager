@@ -175,14 +175,14 @@ class _CarDetailsViewState extends State<CarDetailsView> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Text('LOTUS'),
+                    Text(car.make.name.toUpperCase()),
                     const SizedBox(height: 8.0),
                     Wrap(
                       alignment: WrapAlignment.spaceBetween,
                       spacing: 16.0,
                       children: [
                         Text(
-                          'EXIGE S2',
+                          car.model.toUpperCase(),
                           style: Theme.of(context).textTheme.headlineSmall,
                         ),
                         Text(

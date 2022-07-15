@@ -2,6 +2,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/extensions/number.extension.dart';
+import '../../filters/models/filters.model.dart';
 import 'car_location.model.dart';
 
 enum HandDrive {
@@ -29,6 +30,8 @@ enum HandDrive {
 
 class Car {
   final String uuid;
+  final CarMake make;
+  final String model;
   final String title;
   final List<String> imagesUrl;
   final String description;
@@ -48,6 +51,8 @@ class Car {
 
   Car({
     required this.uuid,
+    required this.make,
+    required this.model,
     required this.title,
     required this.imagesUrl,
     required this.description,
@@ -82,6 +87,8 @@ class Car {
   factory Car.fromJson(dynamic data) {
     return Car(
       uuid: data['uuid'],
+      make: CarMake.fromName(data['make'])!,
+      model: data['model'],
       title: data['title'],
       imagesUrl: List.from(data['imagesUrl']),
       description: data['description'],
@@ -112,6 +119,8 @@ class Car {
   Map<String, dynamic> toJson() {
     return {
       'uuid': uuid,
+      'make': make.name,
+      'model': model,
       'title': title,
       'imagesUrl': imagesUrl,
       'description': description,

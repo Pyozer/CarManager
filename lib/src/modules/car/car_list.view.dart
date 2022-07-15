@@ -29,12 +29,12 @@ class _CarListViewState extends State<CarListView> {
   }
 
   bool _isMatchingFilter(Car car) {
-    // if (_filters.make != null && _filters.make! != car.make) {
-    //   return false;
-    // }
-    // if (_filters.model != null && _filters.model! != car.model) {
-    //   return false;
-    // }
+    if (_filters.make != null && _filters.make!.name != car.make.name) {
+      return false;
+    }
+    if (_filters.model != null && _filters.model! != car.model) {
+      return false;
+    }
     if (_filters.minYear != null && _filters.minYear! > car.year) {
       return false;
     }
@@ -82,7 +82,7 @@ class _CarListViewState extends State<CarListView> {
                 setState(() => _filters.handDrive = null);
               },
             ),
-          if (_filters.minHP != null && _filters.minHP != 0)
+          if (_filters.minHP != null && _filters.minHP != kMinHP)
             Chip(
               label: Text('HP ≥ ${_filters.minHP}'),
               onDeleted: () {

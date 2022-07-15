@@ -1,14 +1,17 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../car/model/car.model.dart';
 import 'models/filters.model.dart';
 import 'widget/filter_range.widget.dart';
 
+const kMinHP = 0.0;
 const kMaxHP = 500.0;
-const kMinYear = 1950.0;
-final kMaxYear = DateTime.now().year.toDouble();
+const kMinYear = 1990.0;
+final kMaxYear = (DateTime.now().year + 1).toDouble();
 
 class FiltersViewArguments {
   final Filters? baseFilters;
@@ -28,8 +31,8 @@ class FiltersView extends StatefulWidget {
 }
 
 class _FiltersViewState extends State<FiltersView> {
-  RangeValues _hpRangeValues = const RangeValues(0, kMaxHP);
-  RangeValues _yearRangeValues = RangeValues(kMinYear, kMaxYear);
+  late SfRangeValues _hpRangeValues;
+  late SfRangeValues _yearRangeValues;
   Filters _filters = Filters();
 
   @override
@@ -40,11 +43,15 @@ class _FiltersViewState extends State<FiltersView> {
         jsonDecode(jsonEncode(widget.baseFilters!.toJson())),
       );
     }
-    _hpRangeValues = RangeValues(
-      _filters.minHP?.toDouble() ?? 0,
+    _initSliders();
+  }
+
+  void _initSliders() {
+    _hpRangeValues = SfRangeValues(
+      _filters.minHP?.toDouble() ?? kMinHP,
       _filters.maxHP?.toDouble() ?? kMaxHP,
     );
-    _yearRangeValues = RangeValues(
+    _yearRangeValues = SfRangeValues(
       _filters.minYear?.toDouble() ?? kMinYear,
       _filters.maxYear?.toDouble() ?? kMaxYear,
     );
@@ -57,7 +64,10 @@ class _FiltersViewState extends State<FiltersView> {
         title: const Text('Filters'),
         actions: [
           TextButton(
-            onPressed: () => setState(() => _filters.reset()),
+            onPressed: () => setState(() {
+              _filters.reset();
+              _initSliders();
+            }),
             child: const Text('RESET'),
           ),
         ],
@@ -68,7 +78,9 @@ class _FiltersViewState extends State<FiltersView> {
         label: const Text('Search'),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16.0),
+        // TODO: Add a scrollable list with slider working
+        physics: const NeverScrollableScrollPhysics(),
         children: [
           DropdownButtonFormField<CarMake>(
             value: _filters.make,
@@ -136,44 +148,68 @@ class _FiltersViewState extends State<FiltersView> {
           FilterRange(
             title: 'HP range',
             values: _hpRangeValues,
-            slider: RangeSlider(
-              values: _hpRangeValues,
-              min: 0,
-              max: kMaxHP,
-              divisions: 50,
-              labels: RangeLabels(
-                _hpRangeValues.start.toInt().toString(),
-                _hpRangeValues.end.toInt().toString(),
+            slider: SfRangeSliderTheme(
+              data: SfRangeSliderThemeData(thumbRadius: 14.0),
+              child: SfRangeSlider(
+                min: kMinHP,
+                max: kMaxHP,
+                values: _hpRangeValues,
+                dragMode: SliderDragMode.both,
+                enableTooltip: true,
+                interval: 5.0,
+                stepSize: 5.0,
+                startThumbIcon: const Icon(
+                  Icons.arrow_back_ios_outlined,
+                  size: 12.0,
+                  color: Colors.black,
+                ),
+                endThumbIcon: const Icon(
+                  Icons.arrow_forward_ios_outlined,
+                  size: 12.0,
+                  color: Colors.black,
+                ),
+                onChanged: (SfRangeValues newValues) {
+                  setState(() {
+                    _hpRangeValues = newValues;
+                    _filters.minHP = newValues.start.toInt();
+                    _filters.maxHP = newValues.end.toInt();
+                  });
+                },
               ),
-              onChanged: (RangeValues values) {
-                setState(() {
-                  _hpRangeValues = values;
-                  _filters.minHP = values.start.toInt();
-                  _filters.maxHP = values.end.toInt();
-                });
-              },
             ),
           ),
           const SizedBox(height: 24.0),
           FilterRange(
             title: 'Year range',
             values: _yearRangeValues,
-            slider: RangeSlider(
-              values: _yearRangeValues,
-              min: kMinYear,
-              max: kMaxYear,
-              divisions: (kMaxYear - kMinYear).toInt(),
-              labels: RangeLabels(
-                _yearRangeValues.start.toInt().toString(),
-                _yearRangeValues.end.toInt().toString(),
+            slider: SfRangeSliderTheme(
+              data: SfRangeSliderThemeData(thumbRadius: 14.0),
+              child: SfRangeSlider(
+                min: kMinYear,
+                max: kMaxYear,
+                values: _yearRangeValues,
+                dragMode: SliderDragMode.both,
+                enableTooltip: true,
+                interval: 1.0,
+                stepSize: 1.0,
+                startThumbIcon: const Icon(
+                  Icons.arrow_back_ios_outlined,
+                  size: 12.0,
+                  color: Colors.black,
+                ),
+                endThumbIcon: const Icon(
+                  Icons.arrow_forward_ios_outlined,
+                  size: 12.0,
+                  color: Colors.black,
+                ),
+                onChanged: (SfRangeValues newValues) {
+                  setState(() {
+                    _yearRangeValues = newValues;
+                    _filters.minYear = newValues.start.toInt();
+                    _filters.maxYear = newValues.end.toInt();
+                  });
+                },
               ),
-              onChanged: (RangeValues values) {
-                setState(() {
-                  _yearRangeValues = values;
-                  _filters.minYear = values.start.toInt();
-                  _filters.maxYear = values.end.toInt();
-                });
-              },
             ),
           ),
         ],

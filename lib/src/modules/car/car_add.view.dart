@@ -20,6 +20,7 @@ import '../../utils/regexp.util.dart';
 import '../../utils/validators.utils.dart';
 import '../../widgets/add_image_square.widget.dart';
 import '../../widgets/stepper_controls.widget.dart';
+import '../filters/models/filters.model.dart';
 import '../settings/settings_cars.controller.dart';
 import 'car_location_picker.view.dart';
 import 'model/car_location.model.dart';
@@ -308,6 +309,48 @@ class _CarAddViewState extends State<CarAddView> {
 
   List<Widget> _buildStepInfo() {
     return <Widget>[
+      DropdownButtonFormField<CarMake>(
+        value: CarMake.fromName(car['make']),
+        onChanged: (newMake) => _updateCarValue('make', newMake!.name),
+        isExpanded: true,
+        decoration: const InputDecoration(
+          label: Text('Make'),
+          filled: true,
+        ),
+        items: CarMake.values
+            .map((make) => DropdownMenuItem(
+                  value: make,
+                  child: Row(
+                    children: [
+                      Image.network(
+                        make.logo,
+                        height: 30.0,
+                        width: 30.0,
+                        fit: BoxFit.contain,
+                      ),
+                      const SizedBox(width: 12.0),
+                      Text(make.name),
+                    ],
+                  ),
+                ))
+            .toList(),
+      ),
+      DropdownButtonFormField<String>(
+        value: car['model'],
+        onChanged: (newModel) => _updateCarValue('model', newModel),
+        isExpanded: true,
+        decoration: const InputDecoration(
+          label: Text('Model'),
+          filled: true,
+        ),
+        items: kCars
+            .where((filterCar) => filterCar.make.name == car['make'])
+            .map((car) => DropdownMenuItem(
+                  value: car.model,
+                  child: Text(car.model),
+                ))
+            .toList(),
+      ),
       TextFormField(
         controller: _titleController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
