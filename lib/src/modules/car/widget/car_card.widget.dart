@@ -60,7 +60,7 @@ class CarCard extends StatelessWidget {
                         Text(car.displayPrice, style: textTheme.titleMedium),
                         if (car.isSold)
                           Text(
-                            AppLocalizations.of(context)!.sold,
+                            AppLocalizations.of(context)!.sold.toUpperCase(),
                             style: const TextStyle(
                               color: Colors.redAccent,
                               fontWeight: FontWeight.w600,

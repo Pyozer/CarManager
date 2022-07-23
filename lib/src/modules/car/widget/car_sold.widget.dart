@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CarSold extends StatelessWidget {
   const CarSold({Key? key}) : super(key: key);
@@ -10,10 +11,10 @@ class CarSold extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(10),
         color: Theme.of(context).colorScheme.error,
-        child: const Text(
-          'VENDU',
+        child: Text(
+          AppLocalizations.of(context)!.sold.toUpperCase(),
           textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.w700),
+          style: const TextStyle(fontWeight: FontWeight.w700),
         ),
       ),
     );

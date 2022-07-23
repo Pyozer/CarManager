@@ -4,7 +4,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'modules/car/car_add.view.dart';
-import 'modules/car/car_archive_list.view.dart';
 import 'modules/car/car_details.view.dart';
 import 'modules/car/car_gallery.view.dart';
 import 'modules/car/car_list.view.dart';
@@ -123,17 +122,12 @@ class MyApp extends StatelessWidget {
                   ),
                 );
 
-              case CarArchiveListView.routeName:
-                return _buildRoute<void>(
-                  settings,
-                  const CarArchiveListView(),
-                );
-
               case CarListView.routeName:
               default:
+                final args = settings.arguments as CarListViewArguments?;
                 return _buildRoute<void>(
                   settings,
-                  const CarListView(),
+                  CarListView(isSold: args?.isSold ?? false),
                 );
             }
           },

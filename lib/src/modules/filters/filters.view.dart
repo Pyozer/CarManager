@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 
@@ -61,21 +62,21 @@ class _FiltersViewState extends State<FiltersView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Filters'),
+        title: Text(AppLocalizations.of(context)!.filters),
         actions: [
           TextButton(
             onPressed: () => setState(() {
               _filters.reset();
               _initSliders();
             }),
-            child: const Text('RESET'),
+            child: Text(AppLocalizations.of(context)!.reset.toUpperCase()),
           ),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).pop(_filters),
         icon: const Icon(Icons.search),
-        label: const Text('Search'),
+        label: Text(AppLocalizations.of(context)!.search),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16.0),
@@ -88,8 +89,8 @@ class _FiltersViewState extends State<FiltersView> {
               setState(() => _filters.make = make);
             },
             isExpanded: true,
-            decoration: const InputDecoration(
-              label: Text('Make'),
+            decoration: InputDecoration(
+              label: Text(AppLocalizations.of(context)!.make),
               filled: true,
             ),
             items: CarMake.values
@@ -115,8 +116,8 @@ class _FiltersViewState extends State<FiltersView> {
             value: _filters.model,
             onChanged: (model) => setState(() => _filters.model = model!),
             isExpanded: true,
-            decoration: const InputDecoration(
-              label: Text('Model'),
+            decoration: InputDecoration(
+              label: Text(AppLocalizations.of(context)!.model),
               filled: true,
             ),
             items: kCars
@@ -133,8 +134,8 @@ class _FiltersViewState extends State<FiltersView> {
             onChanged: (handDrive) =>
                 setState(() => _filters.handDrive = handDrive!),
             isExpanded: true,
-            decoration: const InputDecoration(
-              label: Text('Hand Drive'),
+            decoration: InputDecoration(
+              label: Text(AppLocalizations.of(context)!.handrive),
               filled: true,
             ),
             items: HandDrive.values
@@ -146,7 +147,7 @@ class _FiltersViewState extends State<FiltersView> {
           ),
           const SizedBox(height: 24.0),
           FilterRange(
-            title: 'HP range',
+            title: AppLocalizations.of(context)!.hp,
             values: _hpRangeValues,
             slider: SfRangeSliderTheme(
               data: SfRangeSliderThemeData(thumbRadius: 14.0),
@@ -180,7 +181,7 @@ class _FiltersViewState extends State<FiltersView> {
           ),
           const SizedBox(height: 24.0),
           FilterRange(
-            title: 'Year range',
+            title: AppLocalizations.of(context)!.year,
             values: _yearRangeValues,
             slider: SfRangeSliderTheme(
               data: SfRangeSliderThemeData(thumbRadius: 14.0),

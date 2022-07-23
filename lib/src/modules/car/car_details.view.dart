@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
@@ -41,8 +42,8 @@ class _CarDetailsViewState extends State<CarDetailsView> {
     );
   }
 
-  Future<void> _onArchive(Car car) async {
-    car.isArchive = !car.isArchive;
+  Future<void> _onSellToggle(Car car) async {
+    car.isSold = !car.isSold;
     await context.read<SettingsCarsController>().updateCar(car);
   }
 
@@ -108,19 +109,20 @@ class _CarDetailsViewState extends State<CarDetailsView> {
             onPressed: () => _onEdit(context, car),
             style: buttonStyle,
             icon: const Icon(Icons.edit_outlined),
-            label: const Text('Edit'),
+            label: Text(AppLocalizations.of(context)!.editBtn),
           ),
         ),
         const SizedBox(width: 18.0),
         Expanded(
           child: ElevatedButton.icon(
-            onPressed: () => _onArchive(car),
+            onPressed: () => _onSellToggle(car),
             style: buttonStyle,
-            icon: car.isArchive
+            icon: car.isSold
                 ? const Icon(Icons.restore)
                 : const Icon(Icons.archive_outlined),
-            label:
-                car.isArchive ? const Text('Restore') : const Text('Archive'),
+            label: car.isSold
+                ? Text(AppLocalizations.of(context)!.toSell)
+                : Text(AppLocalizations.of(context)!.sold),
           ),
         ),
       ],
@@ -219,7 +221,7 @@ class _CarDetailsViewState extends State<CarDetailsView> {
                   bottom: 8.0,
                 ),
                 title: Text(
-                  'OVERVIEW',
+                  AppLocalizations.of(context)!.overview.toUpperCase(),
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 iconColor: Theme.of(context).colorScheme.onSurface,
@@ -228,7 +230,7 @@ class _CarDetailsViewState extends State<CarDetailsView> {
                 ],
               ),
               CarDetailInfo(
-                title: 'LOCATION',
+                title: AppLocalizations.of(context)!.location.toUpperCase(),
                 copyableText: car.location.address,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -242,18 +244,18 @@ class _CarDetailsViewState extends State<CarDetailsView> {
               ),
               if (car.plate?.isNotEmpty ?? false)
                 CarDetailInfo(
-                  title: 'PLATE',
+                  title: AppLocalizations.of(context)!.plate.toUpperCase(),
                   copyableText: car.plate,
                   child: Text(car.plate!),
                 ),
               if (car.vin?.isNotEmpty ?? false)
                 CarDetailInfo(
-                  title: 'VIN',
+                  title: AppLocalizations.of(context)!.vin.toUpperCase(),
                   copyableText: car.vin,
                   child: Text(car.vin!),
                 ),
               CarDetailInfo(
-                title: 'AJOUTÉ LE',
+                title: AppLocalizations.of(context)!.addedAt.toUpperCase(),
                 child: Text(
                   DateFormat.yMMMMEEEEd(
                     Localizations.localeOf(context).languageCode,

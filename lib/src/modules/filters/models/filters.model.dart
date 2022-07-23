@@ -108,10 +108,12 @@ class Filters {
     return Filters(
       make: carMake,
       model: carMake != null && data['model'] != null
-          ? kCars.firstWhereOrNull(
-              (car) =>
-                  car.make.name == carMake.name && car.model == data['model'],
-            )?.model
+          ? kCars
+              .firstWhereOrNull(
+                (car) =>
+                    car.make.name == carMake.name && car.model == data['model'],
+              )
+              ?.model
           : null,
       minYear: data['minYear'],
       maxYear: data['maxYear'],

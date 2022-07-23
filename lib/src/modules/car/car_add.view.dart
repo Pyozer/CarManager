@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -78,7 +79,6 @@ class _CarAddViewState extends State<CarAddView> {
     'uuid': const Uuid().v4(),
     'handDrive': HandDrive.lhd.rawName,
     'isSold': false,
-    'isArchive': false,
   };
 
   @override
@@ -308,13 +308,15 @@ class _CarAddViewState extends State<CarAddView> {
   }
 
   List<Widget> _buildStepInfo() {
+    final translation = AppLocalizations.of(context)!;
+
     return <Widget>[
       DropdownButtonFormField<CarMake>(
         value: CarMake.fromName(car['make']),
         onChanged: (newMake) => _updateCarValue('make', newMake!.name),
         isExpanded: true,
-        decoration: const InputDecoration(
-          label: Text('Make'),
+        decoration: InputDecoration(
+          label: Text(translation.make),
           filled: true,
         ),
         items: CarMake.values
@@ -339,8 +341,8 @@ class _CarAddViewState extends State<CarAddView> {
         value: car['model'],
         onChanged: (newModel) => _updateCarValue('model', newModel),
         isExpanded: true,
-        decoration: const InputDecoration(
-          label: Text('Model'),
+        decoration: InputDecoration(
+          label: Text(translation.model),
           filled: true,
         ),
         items: kCars
@@ -363,7 +365,7 @@ class _CarAddViewState extends State<CarAddView> {
         autovalidateMode: AutovalidateMode.onUserInteraction,
         minLines: 5,
         maxLines: 15,
-        decoration: inputDeco(labelText: 'Description *'),
+        decoration: inputDeco(labelText: '${translation.overview} *'),
         onChanged: (value) => _updateCarValue('description', value),
         validator: validator.noEmpty,
       ),
@@ -374,7 +376,7 @@ class _CarAddViewState extends State<CarAddView> {
           signed: true,
           decimal: false,
         ),
-        decoration: inputDeco(labelText: 'Prix *').copyWith(
+        decoration: inputDeco(labelText: '${translation.price} *').copyWith(
           suffixIcon: const Icon(Icons.euro),
         ),
         onChanged: (value) => _updateCarValue('price', int.tryParse(value)),
@@ -384,7 +386,7 @@ class _CarAddViewState extends State<CarAddView> {
         controller: _adUrlController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         keyboardType: TextInputType.url,
-        decoration: inputDeco(labelText: 'Lien de l\'annonce *').copyWith(
+        decoration: inputDeco(labelText: '${translation.adUrl} *').copyWith(
           suffixIcon: const Icon(Icons.link),
         ),
         onChanged: (value) => _updateCarValue('adUrl', value),
@@ -393,7 +395,7 @@ class _CarAddViewState extends State<CarAddView> {
       TextFormField(
         controller: _adDateController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        decoration: inputDeco(labelText: 'Date ajout de l\'annonce *'),
+        decoration: inputDeco(labelText: '${translation.addedAt} *'),
         readOnly: true,
         onTap: _onDateFieldTap,
         validator: validator.noEmpty,
@@ -401,7 +403,7 @@ class _CarAddViewState extends State<CarAddView> {
       TextFormField(
         controller: _locationController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
-        decoration: inputDeco(labelText: 'Localisation *'),
+        decoration: inputDeco(labelText: '${translation.location} *'),
         readOnly: true,
         onTap: _onLocationFieldTap,
         validator: validator.noEmpty,
@@ -410,12 +412,14 @@ class _CarAddViewState extends State<CarAddView> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Statut'),
+          Text(translation.adStatus),
           Wrap(
             spacing: 16,
             children: [false, true].mapList((isSold) {
               return ChoiceChip(
-                label: Text(isSold ? 'Vendu' : 'A vendre'),
+                label: Text(
+                  isSold ? translation.sold : translation.toSell,
+                ),
                 labelStyle: isSold == car['isSold']
                     ? const TextStyle(color: Colors.white)
                     : null,
@@ -432,6 +436,7 @@ class _CarAddViewState extends State<CarAddView> {
   }
 
   List<Widget> _buildStepTech() {
+    final translation = AppLocalizations.of(context)!;
     const keyboardType = TextInputType.numberWithOptions(
       signed: true,
       decimal: false,
@@ -442,7 +447,8 @@ class _CarAddViewState extends State<CarAddView> {
         controller: _kmController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         keyboardType: keyboardType,
-        decoration: inputDeco(labelText: 'Kilométrage *').copyWith(
+        decoration:
+            inputDeco(labelText: '${translation.kilometers} *').copyWith(
           suffixText: 'KM',
         ),
         onChanged: (value) => _updateCarValue('kms', int.tryParse(value)),
@@ -457,7 +463,9 @@ class _CarAddViewState extends State<CarAddView> {
                 controller: _monthController,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 keyboardType: keyboardType,
-                decoration: inputDeco(labelText: 'Mois *'),
+                decoration: inputDeco(
+                  labelText: '${translation.month} *',
+                ),
                 onChanged: (value) =>
                     _updateCarValue('month', int.tryParse(value)),
                 validator: (value) => validator.inRange(value, 1, 12),
@@ -469,7 +477,9 @@ class _CarAddViewState extends State<CarAddView> {
                 controller: _yearController,
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 keyboardType: keyboardType,
-                decoration: inputDeco(labelText: 'Année *'),
+                decoration: inputDeco(
+                  labelText: '${translation.year} *',
+                ),
                 onChanged: (value) =>
                     _updateCarValue('year', int.tryParse(value)),
                 validator: (value) =>
@@ -483,7 +493,7 @@ class _CarAddViewState extends State<CarAddView> {
         controller: _hpController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         keyboardType: keyboardType,
-        decoration: inputDeco(labelText: 'Puissance *').copyWith(
+        decoration: inputDeco(labelText: '${translation.hp} *').copyWith(
           suffixText: 'HP',
         ),
         onChanged: (value) => _updateCarValue('hp', int.tryParse(value)),
@@ -493,7 +503,7 @@ class _CarAddViewState extends State<CarAddView> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text('Conduite'),
+          Text(translation.handrive),
           Wrap(
             spacing: 16,
             children: HandDrive.values.mapList((handDrive) {
@@ -520,7 +530,7 @@ class _CarAddViewState extends State<CarAddView> {
         controller: _plateController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         keyboardType: TextInputType.text,
-        decoration: inputDeco(labelText: 'Plaque immatriculation'),
+        decoration: inputDeco(labelText: translation.plate),
         onChanged: (value) => _updateCarValue('plate', value),
         validator: (value) => validator.emptyOrRegex(value, carPlateRegExp),
       ),
@@ -528,7 +538,7 @@ class _CarAddViewState extends State<CarAddView> {
         controller: _vinController,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         keyboardType: TextInputType.text,
-        decoration: inputDeco(labelText: 'VIN'),
+        decoration: inputDeco(labelText: translation.vin),
         onChanged: (value) => _updateCarValue('vin', value),
         validator: (value) => validator.emptyOrRegex(value, carVINRegExp),
       ),
@@ -574,17 +584,28 @@ class _CarAddViewState extends State<CarAddView> {
 
   @override
   Widget build(BuildContext context) {
+    final translation = AppLocalizations.of(context)!;
+    final isEdit = widget.baseCar != null;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Add car'),
+        title: Text(
+          isEdit ? translation.editCarTitle : translation.addCarTitle,
+        ),
       ),
-      floatingActionButton: _currentStep == 2
+      floatingActionButton: _currentStep == 2 && _imagesData.isNotEmpty
           ? FloatingActionButton.extended(
               onPressed: !_isLoading ? _addCar : null,
-              label: _isLoading
-                  ? const Text('Ajout en cours…')
-                  : const Text('Ajouter'),
-              icon: _isLoading ? _buildLoader() : const Icon(Icons.add),
+              label: Text(
+                _isLoading
+                    ? (isEdit
+                        ? translation.editBtnLoading
+                        : translation.addBtnLoading)
+                    : (isEdit ? translation.editBtn : translation.addBtn),
+              ),
+              icon: _isLoading
+                  ? _buildLoader()
+                  : Icon(isEdit ? Icons.edit_outlined : Icons.add),
             )
           : null,
       body: Stepper(
@@ -599,17 +620,17 @@ class _CarAddViewState extends State<CarAddView> {
         onStepCancel: _currentStep > 0 ? _onStepCancel : null,
         steps: [
           _buildStep(
-            title: 'Info',
+            title: translation.info,
             stepIndex: 0,
             content: _buildStepInfo(),
           ),
           _buildStep(
-            title: 'Technical',
+            title: translation.technical,
             stepIndex: 1,
             content: _buildStepTech(),
           ),
           _buildStep(
-            title: 'Images',
+            title: translation.images,
             stepIndex: 2,
             content: _buildStepImages(),
           ),

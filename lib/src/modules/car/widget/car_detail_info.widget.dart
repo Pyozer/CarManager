@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class CarDetailInfo extends StatelessWidget {
   final String title;
@@ -11,10 +12,12 @@ class CarDetailInfo extends StatelessWidget {
       : super(key: key);
 
   Future<void> _copyText(BuildContext context) async {
+    final translate = AppLocalizations.of(context)!;
+
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Copié !'),
-        duration: Duration(seconds: 1),
+      SnackBar(
+        content: Text(translate.copied),
+        duration: const Duration(seconds: 1),
       ),
     );
     await Clipboard.setData(ClipboardData(text: copyableText));

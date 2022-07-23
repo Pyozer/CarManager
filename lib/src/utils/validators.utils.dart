@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'regexp.util.dart';
 
@@ -8,20 +9,24 @@ class Validator {
   const Validator(this.context);
 
   String? noEmpty(String? value) {
-    if (value?.trim().isEmpty ?? true) return 'Field required';
+    if (value?.trim().isEmpty ?? true) {
+      return AppLocalizations.of(context)!.fieldRequired;
+    }
     return null;
   }
 
   String? emptyOrRegex(String? value, RegExpInfo regExpInfo) {
     if (value?.isEmpty ?? true) return null;
     if (regExpInfo.regexp.hasMatch(value!)) return null;
-    return 'Field must match like this ${regExpInfo.pattern}';
+    return AppLocalizations.of(context)!.fieldMustMatch(regExpInfo.pattern);
   }
 
   String? isNumber(String? value) {
     final isEmptyCheck = noEmpty(value);
     if (isEmptyCheck != null) return isEmptyCheck;
-    if (int.tryParse(value ?? '') == null) return 'Field must be a number';
+    if (int.tryParse(value ?? '') == null) {
+      return AppLocalizations.of(context)!.fieldMustBeNumber;
+    }
     return null;
   }
 
@@ -29,7 +34,7 @@ class Validator {
     final isNumberCheck = isNumber(value);
     if (isNumberCheck != null) return isNumberCheck;
     if (int.parse(value!) < from || int.parse(value) > to) {
-      return 'Field must be between $from and $to';
+      return AppLocalizations.of(context)!.fieldMustBeBetween(from, to);
     }
     return null;
   }

@@ -31,7 +31,10 @@ class FilterRange extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              child: Text(values.start.toInt().toString(), textAlign: TextAlign.center),
+              child: Text(
+                values.start.toInt().toString(),
+                textAlign: TextAlign.center,
+              ),
             ),
             Expanded(child: slider),
             Container(
@@ -41,7 +44,10 @@ class FilterRange extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(8.0),
               ),
-              child: Text(values.end.toInt().toString(), textAlign: TextAlign.center),
+              child: Text(
+                values.end.toInt().toString(),
+                textAlign: TextAlign.center,
+              ),
             ),
           ],
         ),

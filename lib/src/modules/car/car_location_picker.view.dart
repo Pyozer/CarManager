@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -87,12 +88,14 @@ class _CarLocationPickerViewState extends State<CarLocationPickerView> {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
+
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _onSubmit,
         icon: const Icon(Icons.check),
-        label: const Text('Set here'),
+        label: Text(translate.setLocationHere),
       ),
       extendBodyBehindAppBar: false,
       appBar: AppBar(
@@ -107,7 +110,7 @@ class _CarLocationPickerViewState extends State<CarLocationPickerView> {
               onPressed: _searchController.clear,
               icon: const Icon(Icons.clear, color: Colors.white),
             ),
-            hintText: 'Address here...',
+            hintText: translate.addressHere,
             border: InputBorder.none,
           ),
         ),

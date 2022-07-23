@@ -10,7 +10,7 @@ class SettingsCarsController extends SettingsController<SettingsCarsService> {
 
   @override
   Future<void> load() async {
-     _cars = await service.getCars();
+    _cars = await service.getCars();
     notifyListeners();
   }
 

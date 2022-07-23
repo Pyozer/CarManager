@@ -4,13 +4,241 @@
     "description": "The title of the application"
   },
 
-  "carListTitle": "Cars",
+  "carListTitle": "Annonces",
   "@carListTitle": {
     "description": "The title of the car saved list screen"
   },
 
-  "sold": "SOLD",
+  "filters": "Filtres",
+  "@filters": {
+    "description": "Filters button to filter cars"
+  },
+
+  "search": "Rechercher",
+  "@search": {
+    "description": "Search button to search cars using filters"
+  },
+
+  "reset": "Réinitialiser",
+  "@reset": {
+    "description": "Reset button for filters"
+  },
+
+  "addCarTitle": "Add new car",
+  "@addCarTitle": {
+    "description": "Car add view title"
+  },
+
+  "editCarTitle": "Edit car",
+  "@editCarTitle": {
+    "description": "Car edit view title"
+  },
+
+  "info": "Info",
+  "@info": {
+    "description": "Car add info section"
+  },
+
+  "make": "Marque",
+  "@make": {
+    "description": "Car make"
+  },
+
+  "model": "Modèle",
+  "@model": {
+    "description": "Car model"
+  },
+
+  "title": "Titre",
+  "@title": {
+    "description": "Car ad title"
+  },
+
+  "overview": "Description",
+  "@overview": {
+    "description": "Car overview"
+  },
+
+  "price": "Prix",
+  "@price": {
+    "description": "Car price"
+  },
+
+  "adUrl": "Lien de l'annonce",
+  "@adUrl": {
+    "description": "Car ad url"
+  },
+
+  "addedAt": "Ajouté le",
+  "@addedAt": {
+    "description": "Car add date"
+  },
+
+  "location": "Localisation",
+  "@location": {
+    "description": "Car location"
+  },
+
+  "adStatus": "Statut",
+  "@adStatus": {
+    "description": "Car status, to sell or sold"
+  },
+
+  "sold": "Vendu",
   "@sold": {
     "description": "Indicate that the car is sold"
+  },
+
+  "toSell": "A vendre",
+  "@toSell": {
+    "description": "Indicate that the car is in sell"
+  },
+
+  "technical": "Technique",
+  "@technical": {
+    "description": "Car add technical section"
+  },
+
+  "kilometers": "Kilométrage",
+  "@kilometers": {
+    "description": "Car kilometers"
+  },
+
+  "month": "Mois",
+  "@month": {
+    "description": "Car month"
+  },
+
+  "year": "Année",
+  "@year": {
+    "description": "Car year"
+  },
+
+  "hp": "Puissance",
+  "@hp": {
+    "description": "Car horse power"
+  },
+
+  "handrive": "Côté du volant",
+  "@handrive": {
+    "description": "Car hand drive"
+  },
+
+  "plate": "Plaque d'immatriculation",
+  "@plate": {
+    "description": "Car plate"
+  },
+
+  "vin": "VIN",
+  "@vin": {
+    "description": "Car vin numbers"
+  },
+
+  "images": "Images",
+  "@images": {
+    "description": "Car add images section"
+  },
+
+  "addBtn": "Ajouter",
+  "@addBtn": {
+    "description": "Car add button"
+  },
+
+  "addBtnLoading": "Ajout en cours…",
+  "@addBtnLoading": {
+    "description": "Car add button during loading"
+  },
+
+  "editBtn": "Modifer",
+  "@editBtn": {
+    "description": "Car edit button"
+  },
+
+  "editBtnLoading": "Modification en cours…",
+  "@editBtnLoading": {
+    "description": "Car edit button during loading"
+  },
+
+  "openItinaryTooltip": "Voir l'itinéraire",
+  "@openItinaryTooltip": {
+    "description": "See itinary to car location"
+  },
+
+  "setLocationHere": "Définir ici",
+  "@setLocationHere": {
+    "description": "Set car location here"
+  },
+
+  "addressHere": "Saisir l'adresse…",
+  "@addressHere": {
+    "description": "Write car adddress here"
+  },
+
+  "copied": "Copié !",
+  "@copied": {
+    "description": "Text has been copied"
+  },
+
+  "carSoldTitle": "Voitures vendus",
+  "@carSoldTitle": {
+    "description": "Car sold view title"
+  },
+
+  "settingsTitle": "Paramètres",
+  "@settingsTitle": {
+    "description": "Settings view title"
+  },
+
+  "systemTheme": "Thème du système",
+  "@systemTheme": {
+    "description": "System theme (dark or light)"
+  },
+
+  "lightTheme": "Thème clair",
+  "@lightTheme": {
+    "description": "Light theme"
+  },
+
+  "darkTheme": "Thème sombre",
+  "@darkTheme": {
+    "description": "Dark theme"
+  },
+
+  "noCarsFound": "Aucune voiture trouvée 😱",
+  "@noCarsFound": {
+    "description": "No car found"
+  },
+
+  "fieldRequired": "Ce champ est obligatoire",
+  "@fieldRequired": {
+    "description": "Form field is required"
+  },
+
+  "fieldMustMatch": "Field must match like this {pattern}",
+  "@fieldMustMatch": {
+    "description": "Form field is required",
+    "placeholders": {
+      "pattern": {
+        "type": "String"
+      }
+    }
+  },
+
+  "fieldMustBeNumber": "Vous devez saisir un nombre",
+  "@fieldMustBeNumber": {
+    "description": "Form field must have a number"
+  },
+
+  "fieldMustBeBetween": "Field must be between {from} and {to}",
+  "@fieldMustBeBetween": {
+    "description": "Form field is required",
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
   }
 }

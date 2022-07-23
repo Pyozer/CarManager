@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'settings_theme.controller.dart';
@@ -11,28 +12,29 @@ class SettingsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final settingsThemeController = context.watch<SettingsThemeController>();
+    final translate = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Settings'),
+        title: Text(translate.settingsTitle),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: DropdownButton<ThemeMode>(
           value: settingsThemeController.themeMode,
           onChanged: settingsThemeController.updateThemeMode,
-          items: const [
+          items: [
             DropdownMenuItem(
               value: ThemeMode.system,
-              child: Text('System Theme'),
+              child: Text(translate.systemTheme),
             ),
             DropdownMenuItem(
               value: ThemeMode.light,
-              child: Text('Light Theme'),
+              child: Text(translate.lightTheme),
             ),
             DropdownMenuItem(
               value: ThemeMode.dark,
-              child: Text('Dark Theme'),
+              child: Text(translate.darkTheme),
             ),
           ],
         ),

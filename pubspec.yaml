@@ -16,14 +16,14 @@ dependencies:
     sdk: flutter
 
   cached_network_image: 3.2.1
-  cloud_firestore: 3.1.18
+  cloud_firestore: 3.4.0
   collection: 1.16.0
-  firebase_core: 1.18.0
-  firebase_storage: 10.2.18
+  firebase_core: 1.20.0
+  firebase_storage: 10.3.3
   flutter_svg: 1.1.1+1
   geocoding: 2.0.4
   google_fonts: 3.0.1
-  google_maps_flutter: 2.1.8
+  google_maps_flutter: 2.1.9
   http: 0.13.4
   image_picker: 0.8.5+3
   intl: 0.17.0
@@ -31,9 +31,9 @@ dependencies:
   provider: 6.0.3
   reorderables: 0.5.0
   shared_preferences: 2.0.15
-  syncfusion_flutter_core: 20.2.38
-  syncfusion_flutter_sliders: 20.2.38
-  url_launcher: 6.1.4
+  syncfusion_flutter_core: 20.2.39
+  syncfusion_flutter_sliders: 20.2.39
+  url_launcher: 6.1.5
   uuid: 3.0.6
 
 dev_dependencies:
@@ -41,9 +41,6 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: 2.0.1
-
-dependency_overrides:
-  firebase_core_platform_interface: 4.4.1
 
 flutter:
   uses-material-design: true

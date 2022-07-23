@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
@@ -39,13 +40,14 @@ class _CarLocationViewState extends State<CarLocationView> {
 
   @override
   Widget build(BuildContext context) {
+    final translate = AppLocalizations.of(context)!;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Location'),
-        
+        title: Text(translate.location),
       ),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Open itinerary',
+        tooltip: translate.openItinaryTooltip,
         onPressed: () {
           _openDirection(widget.location.address);
         },

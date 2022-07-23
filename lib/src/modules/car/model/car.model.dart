@@ -1,4 +1,3 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/extensions/number.extension.dart';
@@ -42,7 +41,6 @@ class Car {
   final int price;
   final HandDrive handDrive;
   bool isSold;
-  bool isArchive;
   final String adUrl;
   final DateTime adDate;
   final CarLocation location;
@@ -63,7 +61,6 @@ class Car {
     required this.price,
     required this.handDrive,
     required this.isSold,
-    required this.isArchive,
     required this.adUrl,
     required this.adDate,
     required this.location,
@@ -102,15 +99,9 @@ class Car {
         orElse: () => HandDrive.lhd,
       ),
       isSold: data['isSold'],
-      isArchive: data['isArchive'],
       adUrl: data['adUrl'],
       adDate: DateTime.parse(data['adDate']),
-      location: data['location'] != null
-          ? CarLocation.fromJson(data['location'])
-          : const CarLocation(
-              address: '13 route de la borde, saint-sulpice',
-              position: LatLng(44.897556, -0.378072),
-            ),
+      location: CarLocation.fromJson(data['location']),
       plate: data['plate'],
       vin: data['vin'],
     );
@@ -131,7 +122,6 @@ class Car {
       'price': price,
       'handDrive': handDrive.rawName,
       'isSold': isSold,
-      'isArchive': isArchive,
       'adUrl': adUrl,
       'adDate': adDate.toIso8601String(),
       'location': location.toJson(),
